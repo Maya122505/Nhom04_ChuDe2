@@ -1,0 +1,104 @@
+{% extends 'khach/base.html' %}
+
+{% block title %}Chi tiết tiệm hoa{% endblock %}
+
+{% block content %}
+<div class="bg-[#faf7f9] flex-grow pb-20 w-full">
+    <div class="max-w-6xl mx-auto pt-8 px-4">
+
+        <!-- Back -->
+        <a href="javascript:history.back()" class="text-pink-500 font-semibold mb-6 hover:underline flex items-center gap-1 inline-block">
+            « Quay lại
+        </a>
+
+        <!-- Title -->
+        <h2 class="text-3xl font-extrabold text-pink-500 mb-6">Chi tiết tiệm hoa</h2>
+
+        <!-- Shop Detail Card -->
+        <div class="bg-pink-50 border border-pink-200 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row gap-10 shadow-sm mb-12">
+
+            <!-- Image -->
+            <img src="{{ shop.card_image_url }}"
+                 class="w-full md:w-1/2 h-80 object-cover rounded-2xl shadow-md">
+
+            <!-- Info -->
+            <div class="flex flex-col justify-center w-full">
+                <h3 class="text-4xl font-extrabold text-pink-500 mb-4 flex items-center gap-2">
+                    {{ shop.User_id.first_name|default:shop.User_id.username }}
+                    <span class="text-green-500 text-xl">✔</span>
+                </h3>
+
+                <p class="text-gray-600 text-lg mb-6 leading-relaxed">{{ shop.moTa }}</p>
+
+                <!-- Rating -->
+                <div class="flex items-center gap-2 mb-8">
+                    <span class="text-yellow-400 text-xl">★★★★★</span>
+                    <span class="text-gray-500 font-semibold">({{ shop.diemTrungBinh }}/5 - {{ shop.soDanhGia }} đánh giá)</span>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex gap-4">
+                    <button onclick="checkAuth('Tạo yêu cầu')"
+                        class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 rounded-xl shadow-md transition">
+                        Tạo yêu cầu
+                    </button>
+
+                    <button onclick="checkAuth('Chat')"
+                        class="flex-1 bg-pink-300 hover:bg-pink-400 text-white font-bold py-3 rounded-xl shadow-md transition">
+                        Chat ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Products -->
+        <h2 class="text-3xl font-extrabold text-pink-500 mb-6">Sản phẩm nổi bật</h2>
+
+        {% for cat, urls in gallery_groups.items %}
+        <div class="bg-white border border-pink-200 rounded-3xl p-8 shadow-sm mb-8">
+            <h3 class="text-xl font-bold text-pink-500 mb-6">{{ cat }}</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {% for url in urls %}
+                <img src="{{ url }}" class="h-60 w-full object-cover rounded-xl shadow-sm hover:scale-105 transition">
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if gallery_uncategorized %}
+        <div class="bg-white border border-pink-200 rounded-3xl p-8 shadow-sm mb-8">
+            <h3 class="text-xl font-bold text-pink-500 mb-6">Sản phẩm khác</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {% for url in gallery_uncategorized %}
+                <img src="{{ url }}" class="h-60 w-full object-cover rounded-xl shadow-sm hover:scale-105 transition">
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not gallery_groups and not gallery_uncategorized %}
+        <div class="bg-white border border-pink-200 rounded-3xl p-12 shadow-sm text-center text-gray-400">
+            Tiệm chưa có sản phẩm mẫu nào.
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function checkAuth(action) {
+    const isAuthenticated = "{{ user.is_authenticated }}" === "True";
+    const shopId = "{{ id|default:1 }}";
+    if (!isAuthenticated) {
+        alert(`Vui lòng đăng nhập để thực hiện chức năng ${action}!`);
+        window.location.href = "{% url 'login' %}?next={{ request.path }}";
+    } else if (action === 'Chat') {
+        window.location.href = "/customer/chat/" + shopId + "/";
+    } else {
+        window.location.href = "/customer/request/" + shopId + "/";
+    }
+}
+</script>
+{% endblock %}

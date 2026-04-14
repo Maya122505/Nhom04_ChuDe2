@@ -1,0 +1,17 @@
+/* Bo góc siêu lớn cho Card */
+.rounded-flower { border-radius: 32px; }
+
+/* Hiệu ứng Hover cho nút bấm */
+.btn-flower {
+    background-color: #F2789F;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-flower:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(242, 120, 159, 0.4);
+}
+
+/* Tùy chỉnh thanh cuộn cho Chatbox */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #FDE2E4; border-radius: 10px; }

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-[#E5EBF2] relative overflow-hidden p-4">
+    <div class="absolute -bottom-20 -right-20 opacity-10 pointer-events-none">
+        <i class="fas fa-certificate text-[400px] text-[#F2789F]"></i>
+    </div>
+
+    <div class="bg-white p-10 md:p-12 rounded-[40px] shadow-2xl w-full max-w-md relative z-10">
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-[#FFF0F5] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <i class="fas fa-sign-in-alt text-[#F2789F] text-xl"></i>
+            </div>
+            <h2 class="text-3xl font-black text-gray-800 tracking-tight">Chào mừng trở lại</h2>
+            <p class="text-gray-400 text-sm mt-1">Đăng nhập hệ thống FlowerHub</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-2">Tên đăng nhập</label>
+                <input type="text" name="username" placeholder="Nhập tên của bà..." required
+                       class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#F2789F] focus:bg-white transition-all font-bold text-gray-700">
+            </div>
+
+            <div class="relative">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-2">Mật khẩu</label>
+                <input type="password" name="password" placeholder="********"
+                       class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:border-[#F2789F] focus:bg-white transition-all font-bold">
+                <i class="far fa-eye absolute right-5 top-[46px] text-gray-300 cursor-pointer hover:text-[#F2789F]"></i>
+            </div>
+
+            <button type="submit" class="w-full bg-[#F2789F] text-white font-black py-4 rounded-2xl shadow-lg shadow-pink-100 hover:opacity-90 transition transform active:scale-95 mt-4 flex items-center justify-center">
+                Đăng nhập <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </button>
+        </form>
+
+        <div class="mt-8 text-center border-t border-gray-50 pt-8">
+            <p class="text-sm text-gray-400 font-medium">
+                Bạn chưa có tài khoản?
+                <a href="{% url 'register_khach' %}" class="text-[#F2789F] font-black hover:underline">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

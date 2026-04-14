@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowerHub - Chat với {{ shop.display_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: { DEFAULT: '#e695b2', light: '#fdeff4', dark: '#c4698b' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div class="w-full max-w-2xl bg-white rounded-[28px] border border-pink-100 shadow-xl overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 bg-pink-50">
+            <div class="flex items-center gap-3">
+                {% if shop.avatar_url %}
+                    <img src="{{ shop.avatar_url }}" class="w-10 h-10 rounded-full object-cover" alt="{{ shop.display_name }}">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center font-extrabold">{{ shop.avatar_initial }}</div>
+                {% endif %}
+                <div>
+                    <p class="font-extrabold text-sm text-gray-800">{{ shop.display_name }}</p>
+                    <p class="text-[11px] text-green-500 font-bold">Đang hoạt động</p>
+                </div>
+            </div>
+            <a href="{% url 'detail_logged' shop.pk %}" class="text-pink-300 hover:text-brand text-2xl font-bold">×</a>
+        </div>
+
+        <div id="msg-list" class="px-6 py-6 space-y-5 bg-white h-[55vh] overflow-y-auto">
+            <div class="text-center text-xs text-gray-400">Hôm nay</div>
+            {% for m in messages_list %}
+                {% if m.maTaiKhoan_id == user.id %}
+                    <div class="flex justify-end" data-msg-id="{{ m.maTinNhan }}">
+                        <div class="bg-pink-300 text-white rounded-2xl rounded-tr-none px-4 py-3 text-sm max-w-[70%]">
+                            {% if m.noiDung %}{{ m.noiDung }}{% endif %}
+                            {% if m.hinhAnh %}<img src="{{ m.hinhAnh.url }}" class="mt-2 max-w-full rounded-xl">{% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="flex items-start gap-3" data-msg-id="{{ m.maTinNhan }}">
+                        {% if shop.avatar_url %}
+                            <img src="{{ shop.avatar_url }}" class="w-8 h-8 rounded-full object-cover shrink-0">
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-brand text-white flex items-center justify-center text-xs font-extrabold shrink-0">{{ shop.avatar_initial }}</div>
+                        {% endif %}
+                        <div class="bg-gray-50 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-gray-600 max-w-[70%]">
+                            {% if m.noiDung %}{{ m.noiDung }}{% endif %}
+                            {% if m.hinhAnh %}<img src="{{ m.hinhAnh.url }}" class="mt-2 max-w-full rounded-xl">{% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <div id="empty-hint" class="text-center text-xs text-gray-400">Chưa có tin nhắn. Hãy bắt đầu trò chuyện!</div>
+            {% endfor %}
+        </div>
+
+        <form id="chat-form" method="POST" action="{% url 'chat_kh' shop.pk %}" enctype="multipart/form-data" class="px-6 py-3 bg-white border-t border-gray-100">
+            {% csrf_token %}
+            <div id="chat-img-preview" class="hidden mb-2 flex items-center gap-2">
+                <img id="chat-img-thumb" class="w-16 h-16 rounded-xl object-cover border border-pink-100">
+                <button type="button" id="chat-img-remove" class="text-xs text-gray-400 hover:text-brand">✕ Bỏ ảnh</button>
+            </div>
+            <div class="flex items-center gap-3">
+                <label for="chat-img" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-400 font-bold text-lg flex items-center justify-center cursor-pointer hover:bg-pink-100">🖼</label>
+                <input id="chat-img" name="hinhAnh" type="file" accept="image/*" class="hidden">
+                <input id="msg-input" name="noiDung" type="text" placeholder="Nhập tin nhắn của bạn ........." class="flex-1 px-4 py-3 rounded-2xl bg-gray-50 outline-none text-sm">
+                <button type="submit" class="bg-pink-300 hover:bg-brand text-white px-5 py-2 rounded-2xl font-bold flex items-center gap-2">Gửi <span class="text-lg">›</span></button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const msgList = document.getElementById('msg-list');
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('msg-input');
+        const imgInput = document.getElementById('chat-img');
+        const imgPreview = document.getElementById('chat-img-preview');
+        const imgThumb = document.getElementById('chat-img-thumb');
+        const imgRemove = document.getElementById('chat-img-remove');
+        const jsonUrl = "{% url 'chat_messages_json' shop.pk %}";
+        const shopAvatar = "{{ shop.avatar_url|default:'' }}";
+        const shopInitial = "{{ shop.avatar_initial|escapejs }}";
+
+        let lastId = 0;
+        document.querySelectorAll('[data-msg-id]').forEach(el => {
+            const id = parseInt(el.dataset.msgId);
+            if (id > lastId) lastId = id;
+        });
+
+        const escapeHtml = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+        function shopAvatarHtml(size) {
+            if (shopAvatar) return `<img src="${shopAvatar}" class="w-${size} h-${size} rounded-full object-cover shrink-0">`;
+            return `<div class="w-${size} h-${size} rounded-full bg-brand text-white flex items-center justify-center text-xs font-extrabold shrink-0">${shopInitial}</div>`;
+        }
+
+        function appendMessage(m) {
+            const hint = document.getElementById('empty-hint');
+            if (hint) hint.remove();
+            const wrap = document.createElement('div');
+            wrap.dataset.msgId = m.id;
+            const text = m.noiDung ? escapeHtml(m.noiDung) : '';
+            const imgHtml = m.hinhAnh ? `<img src="${m.hinhAnh}" class="mt-2 max-w-full rounded-xl">` : '';
+            if (m.is_me) {
+                wrap.className = 'flex justify-end';
+                wrap.innerHTML = `<div class="bg-pink-300 text-white rounded-2xl rounded-tr-none px-4 py-3 text-sm max-w-[70%]">${text}${imgHtml}</div>`;
+            } else {
+                wrap.className = 'flex items-start gap-3';
+                wrap.innerHTML = `${shopAvatarHtml(8)}<div class="bg-gray-50 rounded-2xl rounded-tl-none px-4 py-3 text-sm text-gray-600 max-w-[70%]">${text}${imgHtml}</div>`;
+            }
+            msgList.appendChild(wrap);
+            msgList.scrollTop = msgList.scrollHeight;
+        }
+
+        imgInput.addEventListener('change', () => {
+            const f = imgInput.files[0];
+            if (!f) { imgPreview.classList.add('hidden'); return; }
+            imgThumb.src = URL.createObjectURL(f);
+            imgPreview.classList.remove('hidden');
+        });
+        imgRemove.addEventListener('click', () => {
+            imgInput.value = '';
+            imgPreview.classList.add('hidden');
+        });
+
+        async function poll() {
+            try {
+                const r = await fetch(`${jsonUrl}?after=${lastId}`);
+                const d = await r.json();
+                for (const m of d.messages) {
+                    if (m.id > lastId) { appendMessage(m); lastId = m.id; }
+                }
+            } catch (e) {}
+        }
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const text = input.value.trim();
+            const f = imgInput.files[0];
+            if (!text && !f) return;
+            const fd = new FormData(form);
+            input.value = '';
+            imgInput.value = '';
+            imgPreview.classList.add('hidden');
+            try {
+                const r = await fetch(form.action, {
+                    method: 'POST', body: fd,
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                });
+                const d = await r.json();
+                if (d.ok && d.message && d.message.id > lastId) {
+                    appendMessage(d.message);
+                    lastId = d.message.id;
+                }
+            } catch (err) {
+                input.value = text;
+            }
+        });
+
+        msgList.scrollTop = msgList.scrollHeight;
+        let timer = null;
+        function startPolling() { if (timer) return; poll(); timer = setInterval(poll, 2000); }
+        function stopPolling() { if (timer) { clearInterval(timer); timer = null; } }
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') startPolling(); else stopPolling();
+        });
+        if (document.visibilityState === 'visible') startPolling();
+    </script>
+</body>
+</html>

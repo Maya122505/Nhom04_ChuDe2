@@ -1,0 +1,302 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký gian hàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] min-h-screen text-gray-700">
+    <nav class="bg-white px-6 md:px-10 py-4 flex items-center justify-between shadow-sm">
+        <a href="#">
+            <img src="{% static 'images/logo.png' %}" alt="FlowerHub" class="h-10 w-auto">
+        </a>
+        <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-500">
+            <a href="#" class="hover:text-[#F2789F]">Trang chủ</a>
+            <a href="#" class="hover:text-[#F2789F]">Về chúng tôi</a>
+            <a href="#" class="hover:text-[#F2789F]">Hỗ trợ</a>
+            <a href="{% url 'logout_shop' %}" class="bg-[#F2789F] text-white px-4 py-2 rounded-full shadow">
+                Đăng xuất
+            </a>
+        </div>
+        <button class="md:hidden text-gray-500">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </nav>
+
+    <main class="px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <p class="text-[11px] text-[#F2789F] font-semibold">Dành cho chủ cửa hàng</p>
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Đăng ký gian hàng</h1>
+
+            {% if errors %}
+                <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-600 text-sm font-semibold">
+                    {% for k, v in errors.items %}{{ v }}<br>{% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'register_shop' %}" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                <section class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-user text-[10px]"></i>
+                        </span>
+                        Thông tin cơ bản
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-gray-500 mb-1">Tên tiệm hoa</label>
+                            <input type="text" name="ten_tiem" value="{{ values.ten_tiem|default:'' }}" required class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Địa chỉ cửa hàng</label>
+                            <input type="text" name="dia_chi" value="{{ values.dia_chi|default:'' }}" required class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Số điện thoại</label>
+                            <input type="text" value="{{ user.phonenumber }}" disabled class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none bg-gray-50 text-gray-400">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Email liên hệ</label>
+                            <input type="text" value="{{ user.email }}" disabled class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none bg-gray-50 text-gray-400">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-file-lines text-[10px]"></i>
+                        </span>
+                        Thông tin pháp lý
+                    </div>
+                    <div class="text-xs space-y-3">
+                        <div>
+                            <label class="block text-gray-500 mb-1">Mã số thuế</label>
+                            <input type="text" name="ma_so_thue" value="{{ values.ma_so_thue|default:'' }}" placeholder="Nhập mã số thuế" required class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Logo tiệm hoa</label>
+                            <label class="w-full h-28 border border-dashed border-gray-300 rounded-xl bg-[#F9FAFB] flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-50 transition relative overflow-hidden group">
+                                <input type="file" name="logo" class="hidden" accept=".jpg, .jpeg, .png" onchange="previewImage(this)">
+                                <div class="flex flex-col items-center justify-center placeholder-content pointer-events-none w-full h-full">
+                                    <i class="fa-regular fa-image text-lg mb-2"></i>
+                                    <span>Nhấn để tải lên hoặc kéo thả</span>
+                                    <span class="text-[10px] text-gray-300">JPG, PNG, PDF tối đa 5MB</span>
+                                </div>
+                                <img src="" class="absolute inset-0 w-full h-full hidden preview-img pointer-events-none object-contain">
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-image text-[10px]"></i>
+                        </span>
+                        Hồ sơ năng lực
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-gray-500 mb-1">Ảnh sản phẩm mẫu</label>
+                            <label class="h-32 rounded-xl bg-[#F9FAFB] border border-gray-200 flex items-center justify-center text-gray-300 cursor-pointer hover:bg-gray-50 transition relative overflow-hidden">
+                                <input type="file" name="anh_san_pham" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                <i class="fa-regular fa-image text-2xl placeholder-content pointer-events-none"></i>
+                                <img src="" class="absolute inset-0 w-full h-full hidden preview-img pointer-events-none object-contain">
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Mô tả ngắn</label>
+                            <textarea name="mo_ta" rows="3" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100" placeholder="Giới thiệu về phong cách cắm hoa, kinh nghiệm và cam kết chất lượng của tiệm.">{{ values.mo_ta|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-tag text-[10px]"></i>
+                        </span>
+                        Danh mục thế mạnh
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                        {% for v in "Hoa cưới,Hoa sự kiện,Hoa sinh nhật,Hoa khai trương,Hoa bó/lẵng,Hoa định kỳ"|stringformat:"s" %}{% endfor %}
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa cưới" class="accent-pink-500"> Hoa cưới
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa sự kiện" class="accent-pink-500"> Hoa sự kiện
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa sinh nhật" class="accent-pink-500"> Hoa sinh nhật
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa khai trương" class="accent-pink-500"> Hoa khai trương
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa bó/lẵng" class="accent-pink-500"> Hoa bó/lẵng
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 cursor-pointer has-[:checked]:border-pink-400 has-[:checked]:bg-pink-50">
+                            <input type="radio" name="the_loai" value="Hoa định kỳ" class="accent-pink-500"> Hoa định kỳ
+                        </label>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-4">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-building-columns text-[10px]"></i>
+                        </span>
+                        Thông tin tài khoản ngân hàng
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-gray-500 mb-1">Tên chủ tài khoản</label>
+                            <input type="text" name="ten_chu_tk" value="{{ values.ten_chu_tk|default:'' }}" required class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Số tài khoản</label>
+                            <input type="text" name="so_tk" value="{{ values.so_tk|default:'' }}" required class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Tên ngân hàng</label>
+                            <div id="bank-picker" class="relative">
+                                <button type="button" id="bank-btn" class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-left bg-white flex items-center gap-2">
+                                    <img id="bank-logo" src="" class="hidden w-6 h-6 object-contain">
+                                    <span id="bank-label" class="text-gray-400">Chọn ngân hàng...</span>
+                                    <span class="ml-auto text-gray-400">▾</span>
+                                </button>
+                                <div id="bank-panel" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-hidden">
+                                    <input id="bank-search" type="text" placeholder="Tìm ngân hàng..." class="w-full px-3 py-2 text-sm border-b border-gray-100 outline-none">
+                                    <div id="bank-list" class="max-h-52 overflow-y-auto"></div>
+                                </div>
+                                <input type="hidden" name="ten_ngan_hang" id="ten_ngan_hang" value="{{ values.ten_ngan_hang|default:'' }}" required>
+                                <input type="hidden" name="bank_bin" id="bank_bin" value="{{ values.bank_bin|default:'' }}">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 mb-1">Mã QR (tự sinh)</label>
+                            <div class="w-full h-32 border border-dashed border-gray-300 rounded-xl bg-[#F9FAFB] flex items-center justify-center text-gray-400 relative overflow-hidden">
+                                <span id="qr-hint" class="text-xs">Chọn ngân hàng + nhập số TK để hiện QR</span>
+                                <img id="qr-preview" src="" class="hidden absolute inset-0 w-full h-full object-contain bg-white">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <button type="submit" class="w-full bg-[#F2789F] text-white rounded-xl py-3 font-semibold shadow-md hover:opacity-90 transition">
+                    Gửi hồ sơ đăng ký
+                </button>
+            </form>
+        </div>
+    </main>
+    <div id="success-overlay" class="hidden fixed inset-0 bg-black/20 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-xl px-10 py-8 text-center min-w-[280px]">
+            <div class="w-12 h-12 rounded-full bg-[#E9F9F0] text-[#40B37A] flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-check text-xl"></i>
+            </div>
+            <div class="text-sm font-semibold text-gray-800">Gửi thành công</div>
+        </div>
+    </div>
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const label = input.closest('label');
+                    const img = label.querySelector('.preview-img');
+                    const placeholder = label.querySelector('.placeholder-content');
+                    if (img && placeholder) {
+                        img.src = e.target.result;
+                        img.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // === Bank picker (VietQR) ===
+        const bankBtn = document.getElementById('bank-btn');
+        const bankPanel = document.getElementById('bank-panel');
+        const bankSearch = document.getElementById('bank-search');
+        const bankList = document.getElementById('bank-list');
+        const bankLabel = document.getElementById('bank-label');
+        const bankLogo = document.getElementById('bank-logo');
+        const hiddenName = document.getElementById('ten_ngan_hang');
+        const hiddenBin = document.getElementById('bank_bin');
+        const soTkInput = document.querySelector('[name="so_tk"]');
+        const qrPreview = document.getElementById('qr-preview');
+        const qrHint = document.getElementById('qr-hint');
+        let banks = [];
+
+        function renderBanks(filter = '') {
+            const f = filter.toLowerCase();
+            const filtered = banks.filter(b =>
+                !f ||
+                b.shortName.toLowerCase().includes(f) ||
+                b.code.toLowerCase().includes(f) ||
+                (b.name || '').toLowerCase().includes(f)
+            );
+            bankList.innerHTML = filtered.map(b => `
+                <button type="button" data-code="${b.code}" data-bin="${b.bin}" data-name="${b.shortName}" data-logo="${b.logo}"
+                    class="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-pink-50 text-left">
+                    <img src="${b.logo}" class="w-8 h-8 object-contain">
+                    <div class="flex-1">
+                        <div class="font-semibold text-gray-800">${b.shortName}</div>
+                        <div class="text-[11px] text-gray-400 truncate">${b.name}</div>
+                    </div>
+                </button>
+            `).join('');
+        }
+        function selectBank(bin, name, logo) {
+            hiddenName.value = name;
+            hiddenBin.value = bin;
+            bankLabel.textContent = name;
+            bankLabel.classList.remove('text-gray-400');
+            bankLabel.classList.add('text-gray-800', 'font-semibold');
+            if (logo) {
+                bankLogo.src = logo;
+                bankLogo.classList.remove('hidden');
+            }
+            bankPanel.classList.add('hidden');
+            updateQR();
+        }
+        function updateQR() {
+            const bin = hiddenBin.value;
+            const acc = (soTkInput.value || '').trim();
+            if (bin && acc) {
+                qrPreview.src = `https://img.vietqr.io/image/${bin}-${acc}-compact.png`;
+                qrPreview.classList.remove('hidden');
+                qrHint.classList.add('hidden');
+            } else {
+                qrPreview.classList.add('hidden');
+                qrHint.classList.remove('hidden');
+            }
+        }
+        bankBtn.addEventListener('click', () => bankPanel.classList.toggle('hidden'));
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#bank-picker')) bankPanel.classList.add('hidden');
+        });
+        bankSearch.addEventListener('input', () => renderBanks(bankSearch.value));
+        bankList.addEventListener('click', e => {
+            const btn = e.target.closest('button[data-code]');
+            if (btn) selectBank(btn.dataset.bin, btn.dataset.name, btn.dataset.logo);
+        });
+        soTkInput.addEventListener('input', updateQR);
+
+        fetch('https://api.vietqr.io/v2/banks')
+            .then(r => r.json())
+            .then(d => { banks = d.data || []; renderBanks(); });
+
+    </script>
+</body>
+</html>

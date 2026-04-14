@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề xuất và báo giá</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
+                <div class="text-sm text-gray-400"></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        <span class="font-semibold text-gray-700">{{ shop_name }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6 space-y-6">
+                <div class="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center">
+                        <i class="fa-solid fa-clock text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[10px] uppercase text-gray-400">Chờ báo giá</p>
+                        <p class="text-lg font-bold">{{ quotes|length }} Đơn hàng</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-base font-semibold text-gray-800 mb-3">Danh sách chờ báo giá</h2>
+                    <div class="bg-white rounded-2xl shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs">
+                                <thead class="text-[10px] uppercase text-gray-400">
+                                    <tr class="text-left">
+                                        <th class="px-6 py-4 font-semibold">Mã đơn hàng</th>
+                                        <th class="px-6 py-4 font-semibold">Khách hàng</th>
+                                        <th class="px-6 py-4 font-semibold">Ngày yêu cầu</th>
+                                        <th class="px-6 py-4 font-semibold">Dịp sử dụng</th>
+                                        <th class="px-6 py-4 font-semibold">Trạng thái</th>
+                                        <th class="px-6 py-4 font-semibold text-right">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y text-gray-700">
+                                    {% for q in quotes %}
+                                    <tr class="hover:bg-[#FFF8FA]">
+                                        <td class="px-6 py-4 font-semibold text-gray-800">
+                                            <a href="{% url 'vendor_order_detail' q.id %}" class="hover:text-[#F2789F]">#{{ q.id }}</a>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="font-semibold text-gray-800">{{ q.khach }}</div>
+                                            <div class="text-[10px] text-gray-400">{{ q.phone }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-500">{{ q.ngay_dat }}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 rounded-full bg-[#FBE9F1] text-[#F2789F] text-[10px]">{{ q.dip }}</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 rounded-full bg-[#FFF1E8] text-[#F59E6B] text-[10px] inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-clock text-[9px]"></i> Chờ tư vấn
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="{% url 'send_quote' q.id %}" class="px-3 py-1 rounded-full bg-[#F2789F] text-white text-[10px]">Đề xuất</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="6" class="px-6 py-8 text-center text-xs text-gray-400">Không có yêu cầu nào chờ báo giá</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+<script>
+    const rawProfile = localStorage.getItem('vendor_profile');
+    if (rawProfile) {
+        try {
+            const data = JSON.parse(rawProfile);
+            if (data.logo) {
+                const headerLogo = document.getElementById('header-logo');
+                if (headerLogo) headerLogo.src = data.logo;
+            }
+        } catch (err) {}
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+{% extends 'khach/base.html' %}
+
+{% block title %}Đăng ký - FlowerHub{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 flex-grow flex items-center justify-center py-20 w-full">
+    <div class="bg-white p-10 rounded-3xl shadow-xl border border-gray-100 w-full max-w-lg">
+        <h2 class="text-3xl font-extrabold text-gray-800 text-center mb-8">Đăng ký tài khoản</h2>
+
+        {% if form.non_field_errors %}
+            <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-600 text-sm font-semibold">
+                {% for e in form.non_field_errors %}{{ e }}<br>{% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'register' %}" class="space-y-5" novalidate>
+            {% csrf_token %}
+
+            <div>
+                <label class="block font-bold text-sm text-gray-700 mb-2">Tên đăng nhập</label>
+                <input name="username" type="text" value="{{ form.username.value|default:'' }}" required
+                    class="w-full px-5 py-3 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                {% if form.username.errors %}<p class="text-red-500 text-xs mt-1 font-semibold">{{ form.username.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block font-bold text-sm text-gray-700 mb-2">Email</label>
+                <input name="email" type="email" value="{{ form.email.value|default:'' }}" required
+                    class="w-full px-5 py-3 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                {% if form.email.errors %}<p class="text-red-500 text-xs mt-1 font-semibold">{{ form.email.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-sm text-gray-700 mb-2">Họ</label>
+                    <input name="last_name" type="text" value="{{ form.last_name.value|default:'' }}" placeholder="Nguyễn"
+                        class="w-full px-5 py-3 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                </div>
+                <div>
+                    <label class="block font-bold text-sm text-gray-700 mb-2">Tên</label>
+                    <input name="first_name" type="text" value="{{ form.first_name.value|default:'' }}" placeholder="Linh"
+                        class="w-full px-5 py-3 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-bold text-sm text-gray-700 mb-2">Số điện thoại</label>
+                <input name="phonenumber" type="text" value="{{ form.phonenumber.value|default:'' }}" placeholder="0xxxxxxxxx" required
+                    class="w-full px-5 py-3 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                {% if form.phonenumber.errors %}<p class="text-red-500 text-xs mt-1 font-semibold">{{ form.phonenumber.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block font-bold text-sm text-gray-700 mb-2">Mật khẩu</label>
+                <div class="relative">
+                    <input id="password-input" name="password" type="password" placeholder="********" required
+                        class="w-full px-5 py-3 pr-12 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                    <button type="button" data-toggle="password-input" class="toggle-eye absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand">👁</button>
+                </div>
+                {% if form.password.errors %}<p class="text-red-500 text-xs mt-1 font-semibold">{{ form.password.errors.0 }}</p>{% endif %}
+                <ul id="pw-rules" class="text-xs text-gray-500 mt-2 space-y-1">
+                    <li data-rule="len">• Ít nhất 8 ký tự</li>
+                    <li data-rule="upper">• 1 chữ IN HOA</li>
+                    <li data-rule="lower">• 1 chữ thường</li>
+                    <li data-rule="digit">• 1 chữ số</li>
+                    <li data-rule="special">• 1 ký tự đặc biệt</li>
+                </ul>
+            </div>
+
+            <div>
+                <label class="block font-bold text-sm text-gray-700 mb-2">Xác nhận mật khẩu</label>
+                <div class="relative">
+                    <input id="confirm-input" name="confirm_password" type="password" placeholder="********" required
+                        class="w-full px-5 py-3 pr-12 border border-gray-200 rounded-2xl outline-none focus:border-brand transition bg-gray-50">
+                    <button type="button" data-toggle="confirm-input" class="toggle-eye absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand">👁</button>
+                </div>
+                {% if form.confirm_password.errors %}<p class="text-red-500 text-xs mt-1 font-semibold">{{ form.confirm_password.errors.0 }}</p>{% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-2xl text-lg shadow-md transition transform active:scale-95 mt-4">
+                Đăng ký ngay
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm font-semibold text-gray-600 border-t pt-6">
+            Đã có tài khoản? <a href="{% url 'login' %}" class="text-brand hover:underline">Đăng nhập ngay</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.toggle-eye').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.toggle);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
+    });
+});
+
+const pwInput = document.getElementById('password-input');
+const rules = {
+    len: v => v.length >= 8,
+    upper: v => /[A-Z]/.test(v),
+    lower: v => /[a-z]/.test(v),
+    digit: v => /\d/.test(v),
+    special: v => /[^A-Za-z0-9]/.test(v),
+};
+if (pwInput) {
+    pwInput.addEventListener('input', () => {
+        const v = pwInput.value;
+        document.querySelectorAll('#pw-rules li').forEach(li => {
+            const ok = rules[li.dataset.rule](v);
+            li.className = ok ? 'text-xs text-green-600 font-semibold' : 'text-xs text-gray-500';
+        });
+    });
+}
+</script>
+{% endblock %}

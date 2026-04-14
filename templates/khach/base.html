@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FlowerHub - Đặt hoa trực tuyến{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#e695b2',
+                            light: '#fdeff4',
+                            dark: '#c4698b',
+                            text: '#4a4a4a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { color: #333; }
+        .glass-input { box-shadow: 0 4px 6px -1px rgba(230, 149, 178, 0.1), 0 2px 4px -1px rgba(230, 149, 178, 0.06); }
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+
+    <header class="flex justify-between items-center py-4 px-10 border-b border-gray-100 sticky top-0 bg-white z-50 shadow-sm">
+        <a href="{% url 'home' %}" class="text-3xl font-extrabold text-brand flex items-center gap-2">
+            🌸 FlowerHub
+        </a>
+        <nav class="hidden md:flex gap-8 font-bold text-gray-700 text-lg">
+            <a href="{% url 'home' %}" class="hover:text-brand transition">Trang chủ</a>
+            <a href="{% url 'search' %}" class="hover:text-brand transition">Khám phá</a>
+            <a href="#" class="hover:text-brand transition">Về chúng tôi</a>
+        </nav>
+
+        {% if not user.is_authenticated %}
+        <div class="flex gap-6 font-bold text-lg">
+            <a href="{% url 'login' %}" class="text-brand hover:text-brand-dark transition">Đăng nhập</a>
+            <a href="{% url 'register' %}" class="text-brand hover:text-brand-dark transition">Đăng ký</a>
+        </div>
+        {% else %}
+        <div class="flex gap-6 font-bold text-lg items-center">
+            <span class="text-gray-700">Xin chào, <span class="text-brand">{{ user.username }}</span></span>
+            <a href="{% url 'logout' %}" class="text-gray-400 hover:text-red-500 transition">Đăng xuất</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <main class="flex-grow flex flex-col">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-brand-light pt-16 pb-8 px-10 border-t border-brand mt-auto">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <h3 class="text-3xl font-extrabold text-brand mb-4">🌸 FlowerHub</h3>
+                <p class="text-gray-600 font-semibold leading-relaxed">Nền tảng đặt hoa trực tuyến hàng đầu Việt Nam, kết nối bạn với những nghệ nhân hoa tài năng nhất.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Dịch vụ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li><a href="#" class="hover:text-brand">Tìm kiếm tiệm hoa</a></li>
+                    <li><a href="#" class="hover:text-brand">Gói quà tặng</a></li>
+                    <li><a href="#" class="hover:text-brand">Hoa sự kiện</a></li>
+                    <li><a href="#" class="hover:text-brand">Hoa cưới</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Hỗ trợ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li><a href="#" class="hover:text-brand">Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="hover:text-brand">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="hover:text-brand">Điều khoản dịch vụ</a></li>
+                    <li><a href="#" class="hover:text-brand">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Liên hệ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li>flower@example.com</li>
+                    <li>0123456789</li>
+                    <li>Số 1, Đường Hoa, Hà Nội</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 font-semibold text-sm pt-6 border-t border-gray-300 opacity-50">
+            © 2026 FlowerHub. All rights reserved.
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

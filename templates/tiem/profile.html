@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ sơ năng lực</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
+                <div></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500"><i class="fa-regular fa-bell"></i></button>
+                    <div class="flex items-center gap-2">
+                        {% if shop.logoTiemHoa %}
+                            <img src="{{ shop.logoTiemHoa.url }}" class="w-8 h-8 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <span class="font-semibold text-gray-700">{{ shop_name }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]"><i class="fa-solid fa-right-from-bracket"></i></a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6 space-y-5">
+                {% if messages %}{% for m in messages %}<div class="bg-green-50 text-green-600 text-sm p-3 rounded-xl">{{ m }}</div>{% endfor %}{% endif %}
+
+                <h1 class="text-lg font-semibold text-gray-800">Hồ sơ năng lực</h1>
+
+                <!-- Avatar + tên + nút Cập nhật -->
+                <div class="bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-4">
+                        {% if shop.logoTiemHoa %}
+                            <img src="{{ shop.logoTiemHoa.url }}" class="w-14 h-14 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-14 h-14 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xl font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <p class="text-base font-semibold text-gray-800">{{ shop_name }}</p>
+                            <p class="text-[11px] text-gray-400">#{{ shop.tiemhoa_id }} · {{ shop.get_trangThaiDuyet_display }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'vendor_profile_edit' %}" class="flex items-center gap-2 bg-[#F2789F] text-white px-5 py-2 rounded-full text-xs font-semibold">
+                        <i class="fa-solid fa-pen text-[10px]"></i> Cập nhật
+                    </a>
+                </div>
+
+                <!-- Phong cách -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                        </span>
+                        <h2 class="text-sm font-semibold text-gray-800">Phong cách thiết kế</h2>
+                    </div>
+                    <p class="text-sm text-gray-500 leading-relaxed">{{ shop.moTa|default:"Tiệm chưa cập nhật mô tả. Hãy bấm 'Cập nhật' để thêm thông tin về phong cách và năng lực của tiệm." }}</p>
+                    {% if shop.the_loai %}
+                    <span class="inline-block mt-3 px-3 py-1 rounded-full bg-[#FBE9F1] text-[#F2789F] text-xs font-semibold">{{ shop.the_loai }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Album -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                                <i class="fa-solid fa-images text-[10px]"></i>
+                            </span>
+                            <h2 class="text-sm font-semibold text-gray-800">Album sản phẩm mẫu</h2>
+                            <span class="text-[11px] text-gray-400">({{ gallery_total }} ảnh)</span>
+                        </div>
+                        {% if gallery_total > 4 %}
+                        <button type="button" id="toggle-album" class="text-xs text-[#F2789F] font-semibold">Xem tất cả →</button>
+                        {% endif %}
+                    </div>
+                    <div id="album-preview" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for img in album_preview %}
+                            <img src="{{ img }}" class="w-full aspect-square rounded-xl object-cover" alt="Mẫu">
+                        {% empty %}
+                            <div class="col-span-full text-center text-xs text-gray-400 py-6">Chưa có ảnh nào trong album. Bấm "Cập nhật" để thêm ảnh.</div>
+                        {% endfor %}
+                    </div>
+
+                    <div id="album-grouped" class="hidden space-y-6">
+                        {% for cat, urls in gallery_groups.items %}
+                        <div>
+                            <h3 class="text-xs font-bold text-[#F2789F] uppercase mb-3">{{ cat }} <span class="text-gray-400">({{ urls|length }})</span></h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {% for url in urls %}
+                                <img src="{{ url }}" class="w-full aspect-square rounded-xl object-cover" alt="Mẫu">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if gallery_others %}
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Sản phẩm khác <span class="text-gray-400">({{ gallery_others|length }})</span></h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {% for url in gallery_others %}
+                                <img src="{{ url }}" class="w-full aspect-square rounded-xl object-cover" alt="Mẫu">
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Thông tin chi tiết -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <button type="button" id="toggle-detail" class="w-full flex items-center justify-between text-sm font-semibold text-gray-800">
+                        <span><i class="fa-solid fa-circle-info text-[#F2789F] mr-2"></i> Thông tin chi tiết</span>
+                        <i id="toggle-icon" class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                    </button>
+                    <div id="detail-body" class="hidden mt-4 grid md:grid-cols-2 gap-4 text-sm">
+                        <div><span class="text-gray-400">Email:</span> <span class="font-semibold">{{ shop.User_id.email }}</span></div>
+                        <div><span class="text-gray-400">Số điện thoại:</span> <span class="font-semibold">{{ shop.User_id.phonenumber|default:"-" }}</span></div>
+                        <div class="md:col-span-2"><span class="text-gray-400">Địa chỉ:</span> <span class="font-semibold">{{ shop.diaChi|default:"-" }}</span></div>
+                        <div><span class="text-gray-400">Mã số thuế:</span> <span class="font-semibold">{{ shop.maSoThue|default:"-" }}</span></div>
+                        <div><span class="text-gray-400">Tên ngân hàng:</span> <span class="font-semibold">{{ shop.tenNganHang|default:"-" }}</span></div>
+                        <div><span class="text-gray-400">Số tài khoản:</span> <span class="font-semibold">{{ shop.soTaiKhoan|default:"-" }}</span></div>
+                        <div><span class="text-gray-400">Chủ tài khoản:</span> <span class="font-semibold">{{ shop.tenChuTaiKhoan|default:"-" }}</span></div>
+                        {% if shop.bank_bin and shop.soTaiKhoan %}
+                        <div class="md:col-span-2 flex items-center gap-4">
+                            <span class="text-gray-400 text-xs">QR thanh toán:</span>
+                            <img src="https://img.vietqr.io/image/{{ shop.bank_bin }}-{{ shop.soTaiKhoan }}-compact.png" class="w-32 h-32 rounded-xl object-contain bg-white border border-gray-100">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        const btn = document.getElementById('toggle-detail');
+        const body = document.getElementById('detail-body');
+        const icon = document.getElementById('toggle-icon');
+        btn.addEventListener('click', () => {
+            body.classList.toggle('hidden');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        });
+
+        const albumBtn = document.getElementById('toggle-album');
+        const albumPreview = document.getElementById('album-preview');
+        const albumGrouped = document.getElementById('album-grouped');
+        if (albumBtn && albumPreview && albumGrouped) {
+            let expanded = false;
+            albumBtn.addEventListener('click', () => {
+                expanded = !expanded;
+                albumPreview.classList.toggle('hidden', expanded);
+                albumGrouped.classList.toggle('hidden', !expanded);
+                albumBtn.textContent = expanded ? 'Thu gọn ←' : 'Xem tất cả →';
+            });
+        }
+    </script>
+</body>
+</html>

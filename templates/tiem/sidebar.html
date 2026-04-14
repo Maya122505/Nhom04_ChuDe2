@@ -1,0 +1,73 @@
+{% load static %}
+<aside class="w-64 bg-white border-r border-gray-100 flex flex-col">
+    <div class="px-6 py-6">
+        <a href="#">
+            <img src="{% static 'images/logo.png' %}" alt="FlowerHub" class="h-10 w-auto">
+        </a>
+    </div>
+    <nav class="px-4 flex-1 space-y-2 text-sm">
+
+        {% with url_name=request.resolver_match.url_name %}
+
+        <a href="{% url 'vendor_dashboard' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl
+           {% if url_name == 'vendor_dashboard' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-house text-xs"></i> Trang chủ
+        </a>
+
+        <a href="{% url 'vendor_profile' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl
+           {% if url_name == 'vendor_profile' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-folder-open text-xs"></i> Quản lý hồ sơ
+        </a>
+
+        <a href="{% url 'vendor_chat' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl relative
+           {% if url_name == 'vendor_chat' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-comment-dots text-xs"></i> Chat
+            <span id="sidebar-chat-badge" class="hidden ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-[#F2789F] text-white text-[10px] font-bold {% if url_name == 'vendor_chat' %}!bg-white !text-[#F2789F]{% endif %}">0</span>
+        </a>
+
+        <a href="{% url 'vendor_quotes' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl
+           {% if url_name == 'vendor_quotes' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-file-invoice text-xs"></i> Đề xuất và báo giá
+        </a>
+
+        <a href="{% url 'vendor_orders' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl
+           {% if url_name == 'vendor_orders' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-pen-to-square text-xs"></i> Cập nhật tiến độ
+        </a>
+
+        <a href="{% url 'vendor_stats' %}"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl
+           {% if url_name == 'vendor_stats' %}bg-[#F2789F] text-white shadow{% else %}text-gray-500 hover:bg-[#FBE9F1]{% endif %}">
+            <i class="fa-solid fa-chart-line text-xs"></i> Thống kê
+        </a>
+
+        {% endwith %}
+    </nav>
+    <script>
+        (function() {
+            const badge = document.getElementById('sidebar-chat-badge');
+            if (!badge) return;
+            const url = "{% url 'vendor_chat_unread' %}";
+            async function refresh() {
+                try {
+                    const r = await fetch(url, {credentials: 'same-origin'});
+                    if (!r.ok) return;
+                    const d = await r.json();
+                    if (d.total > 0) {
+                        badge.textContent = d.total > 99 ? '99+' : d.total;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                } catch (e) {}
+            }
+            refresh();
+            setInterval(refresh, 5000);
+        })();
+    </script>
+</aside>

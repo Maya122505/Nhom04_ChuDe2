@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết chờ duyệt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#F6F8FC] text-slate-600">
+    <div class="flex min-h-screen">
+        {% include 'admin/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between">
+                <h1 class="text-base font-semibold text-slate-900">Quản lý người dùng</h1>
+                <div class="flex items-center gap-3 text-sm font-semibold text-slate-500">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=E8EDF4&color=64748B" class="w-9 h-9 rounded-full">
+                    <span>Quản trị viên</span>
+                    <a href="{% url 'logout_admin' %}" class="text-[#F2789F] hover:opacity-80">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6 space-y-6 max-w-4xl">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-6 relative">
+                    <a href="{% url 'admin_users' %}" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                <i class="fa-regular fa-circle-dot text-[#F2789F]"></i>
+                                Thông tin cơ bản
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Tên tiệm hoa</p>
+                                <p class="text-slate-800 font-semibold">{{ shop.shop_name }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Địa chỉ</p>
+                                <p class="text-slate-700">{{ shop.address }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Số điện thoại</p>
+                                <p class="text-slate-700">{{ shop.phone }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Email liên hệ</p>
+                                <p class="text-slate-700">{{ shop.email }}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                <i class="fa-solid fa-scale-balanced text-[#F2789F]"></i>
+                                Thông tin pháp lý
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Mã số thuế</p>
+                                <p class="text-slate-800 font-semibold">{{ shop.tax_id }}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Logo tiệm hoa</p>
+                                <div class="mt-2 w-40 h-24 rounded-xl border border-slate-100 bg-[#F7F9FC] flex items-center justify-center text-slate-400 text-xs overflow-hidden">
+                                    {% if shop.logo_url %}
+                                        <img src="{{ shop.logo_url }}" class="w-full h-full object-contain" alt="Logo">
+                                    {% else %}
+                                        <span>Chưa cập nhật</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if shop.mo_ta %}
+                            <div>
+                                <p class="text-[11px] text-slate-400 font-semibold uppercase">Mô tả</p>
+                                <p class="text-slate-700 text-sm">{{ shop.mo_ta }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-3">
+                            <i class="fa-regular fa-file-image text-[#F2789F]"></i>
+                            Hồ sơ năng lực
+                        </div>
+                        {% if shop.san_pham_url %}
+                        <img src="{{ shop.san_pham_url }}" class="w-full max-w-md h-48 rounded-xl object-cover" alt="Ảnh sản phẩm">
+                        {% else %}
+                        <div class="w-full max-w-md h-48 rounded-xl bg-[#F7F9FC] flex items-center justify-center text-slate-400 text-sm">Chưa cập nhật ảnh sản phẩm</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-3">
+                                <i class="fa-regular fa-bookmark text-[#F2789F]"></i>
+                                Danh mục thế mạnh
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                {% if shop.the_loai %}
+                                    <span class="px-3 py-1 rounded-full bg-[#FBE9F1] text-[#F2789F] text-xs font-semibold">{{ shop.the_loai }}</span>
+                                {% else %}
+                                    <span class="px-3 py-1 rounded-full bg-[#F7F9FC] text-slate-400 text-xs">Chưa chọn</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-3">
+                                <i class="fa-solid fa-building-columns text-[#F2789F]"></i>
+                                Thông tin ngân hàng
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 text-sm">
+                                <div class="col-span-2 space-y-2">
+                                    <div>
+                                        <p class="text-[11px] text-slate-400 font-semibold uppercase">Chủ tài khoản</p>
+                                        <p class="text-slate-800 font-semibold">{{ shop.account_name }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] text-slate-400 font-semibold uppercase">Số tài khoản</p>
+                                        <p class="text-slate-800 font-semibold">{{ shop.bank_account }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] text-slate-400 font-semibold uppercase">Ngân hàng</p>
+                                        <p class="text-slate-800 font-semibold">{{ shop.bank_name }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-span-1 flex items-center justify-center">
+                                    {% if shop.qr_url %}
+                                        <img src="{{ shop.qr_url }}" class="w-24 h-24 rounded-xl object-contain bg-white border border-slate-100" alt="QR">
+                                    {% else %}
+                                        <div class="w-20 h-20 rounded-xl border border-slate-100 bg-[#F7F9FC] flex items-center justify-center text-slate-400 text-[10px]">QR</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="grid grid-cols-2 gap-4 items-center">
+                        {% csrf_token %}
+                        <input
+                            type="text"
+                            name="reject_reason"
+                            placeholder="Lý do từ chối (nếu có)..."
+                            class="w-full col-span-1 px-4 py-3 rounded-xl bg-[#F7F9FC] border border-transparent focus:border-[#F2789F] focus:ring-2 focus:ring-[#FBE9F1] text-sm outline-none"
+                        >
+                        <div class="col-span-1 flex justify-end gap-3">
+                            <button type="submit" name="action" value="reject" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 text-sm font-semibold">Từ chối</button>
+                            <button type="submit" name="action" value="approve" class="px-5 py-2.5 rounded-xl bg-[#F2789F] text-white text-sm font-semibold">Phê duyệt</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-white p-6">
+    <div class="max-w-md w-full text-center space-y-8 p-10 bg-gray-50/50 rounded-[48px] border border-gray-100">
+        <div class="relative inline-block">
+            <div class="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center text-4xl text-yellow-400 border border-yellow-100">
+                <i class="fas fa-hourglass-half animate-spin-slow"></i>
+            </div>
+            <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center border-4 border-white text-xs">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-2xl font-black text-gray-800 mb-4 tracking-tight">Đang đợi phê duyệt...</h2>
+            <p class="text-gray-400 text-sm leading-relaxed px-4">
+                Hồ sơ năng lực của tiệm <span class="text-pink-500 font-bold italic">Lavender Studio</span> đã được gửi đi thành công. Vui lòng đợi quản trị viên kiểm tra và kích hoạt gian hàng trong 24h tới.
+            </p>
+        </div>
+
+        <div class="pt-6 border-t border-gray-200/50">
+            <a href="{% url 'home' %}" class="text-pink-500 font-bold text-sm hover:underline">Quay lại trang chủ</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+</style>
+{% endblock %}

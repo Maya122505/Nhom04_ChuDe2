@@ -1,0 +1,36 @@
+{% load static %}
+<aside class="w-64 bg-white border-r border-slate-100 min-h-screen">
+    <div class="px-6 py-6">
+        <a href="#">
+            <img src="{% static 'images/logo.png' %}" alt="FlowerHub" class="h-10 w-auto">
+        </a>
+    </div>
+
+    <nav class="px-4 space-y-2">
+        <a href="{% url 'admin_users' %}"
+           class="flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition
+           {% if request.resolver_match.url_name == 'admin_users' %}
+                bg-[#FBE9F1] text-[#F2789F]
+           {% else %}
+                text-slate-500 hover:bg-slate-50 hover:text-[#F2789F]
+           {% endif %}">
+            <span class="flex items-center gap-3">
+                <i class="fa-solid fa-users text-sm"></i>
+                Quản lý người dùng
+            </span>
+        </a>
+
+        <a href="{% url 'admin_dashboard' %}"
+           class="flex items-center px-4 py-3 rounded-xl text-sm font-semibold transition
+           {% if request.resolver_match.url_name == 'admin_dashboard' %}
+                bg-[#FBE9F1] text-[#F2789F]
+           {% else %}
+                text-slate-500 hover:bg-slate-50 hover:text-[#F2789F]
+           {% endif %}">
+            <span class="flex items-center gap-3">
+                <i class="fa-solid fa-chart-line text-sm"></i>
+                Thống kê hoạt động
+            </span>
+        </a>
+    </nav>
+</aside>

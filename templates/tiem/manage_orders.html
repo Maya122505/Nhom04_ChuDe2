@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đơn hàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+        select { appearance: none; -webkit-appearance: none; -moz-appearance: none; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
+                <div class="text-sm text-gray-400"></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        <span class="font-semibold text-gray-700">{{ shop_name|default:"Tên shop chưa thiết lập" }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6">
+                <h1 class="text-lg font-semibold text-gray-800 mb-4">Danh sách đơn hàng</h1>
+
+                <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="text-[10px] uppercase text-gray-400 bg-[#FFF8FA]">
+                                <tr class="text-left">
+                                    <th class="px-6 py-4 font-semibold">Mã đơn hàng</th>
+                                    <th class="px-6 py-4 font-semibold">Khách hàng</th>
+                                    <th class="px-6 py-4 font-semibold">Sản phẩm</th>
+                                    <th class="px-6 py-4 font-semibold">Ngày bắt đầu</th>
+                                    <th class="px-6 py-4 font-semibold">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y text-gray-700">
+                                {% for order in orders %}
+                                <tr>
+                                    <td class="px-6 py-4 font-semibold text-gray-800">#{{ order.id }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-800">{{ order.khach }}</div>
+                                        <div class="text-[10px] text-gray-400">{{ order.phone }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-800">{{ order.sp_name }}</div>
+                                        <div class="text-[10px] text-gray-400">{{ order.sp_desc }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500">{{ order.start_time }}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="status-wrap relative inline-flex items-center">
+                                            {% if order.status == 'hoan_thanh' %}
+                                            <select disabled class="status-select w-32 bg-[#E9F9F0] text-[#40B37A] text-[10px] px-4 py-1 rounded-full border border-[#BFE9D2] pr-8 opacity-70 cursor-not-allowed text-center">
+                                                <option value="hoan_thanh" selected>Hoàn thành</option>
+                                            </select>
+                                            <i class="status-chevron fa-solid fa-chevron-down text-[10px] text-[#40B37A] absolute right-3 pointer-events-none opacity-50"></i>
+                                            {% else %}
+                                            <select class="status-select w-32 bg-[#FFF1E8] text-[#F59E6B] text-[10px] px-4 py-1 rounded-full border border-[#FAD5B1] pr-8 text-center" data-order-id="{{ order.id }}">
+                                                <option value="dang_thuc_hien" {% if order.status == 'dang_thuc_hien' or order.status == 'chon_hoa' %}selected{% endif %}>Đang thực hiện</option>
+                                                <option value="hoan_thanh">Hoàn thành</option>
+                                            </select>
+                                            <i class="status-chevron fa-solid fa-chevron-down text-[10px] text-[#F59E6B] absolute right-3 pointer-events-none"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-400 text-sm">Chưa có đơn hàng nào cần quản lý tiến độ.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 px-6 py-4">
+                        <button class="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-xs">&lt;</button>
+                        <button class="w-7 h-7 rounded-full bg-[#F2789F] text-white text-xs">1</button>
+                        <button class="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-xs">2</button>
+                        <button class="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-xs">3</button>
+                        <button class="w-7 h-7 rounded-full border border-gray-200 text-gray-400 text-xs">&gt;</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        const rawProfile = localStorage.getItem('vendor_profile');
+        if (rawProfile) {
+            try {
+                const data = JSON.parse(rawProfile);
+                if (data.logo) {
+                    const headerLogo = document.getElementById('header-logo');
+                    if (headerLogo) headerLogo.src = data.logo;
+                }
+            } catch (err) {}
+        }
+
+        const setDone = (selectEl) => {
+            selectEl.value = 'hoan_thanh';
+            selectEl.disabled = true;
+            selectEl.classList.remove('bg-[#FFF1E8]', 'text-[#F59E6B]', 'border-[#FAD5B1]');
+            selectEl.classList.add('bg-[#E9F9F0]', 'text-[#40B37A]', 'border-[#BFE9D2]', 'opacity-70', 'cursor-not-allowed');
+            const chevron = selectEl.parentElement.querySelector('.status-chevron');
+            if (chevron) {
+                chevron.classList.remove('text-[#F59E6B]');
+                chevron.classList.add('text-[#40B37A]', 'opacity-50');
+            }
+        };
+
+        document.querySelectorAll('.status-select').forEach((selectEl) => {
+            if (selectEl.value === 'hoan_thanh' && selectEl.disabled) return;
+            selectEl.addEventListener('change', () => {
+                const newStatus = selectEl.value;
+                const orderId = selectEl.getAttribute('data-order-id');
+                
+                if (newStatus === 'hoan_thanh') {
+                    if (!confirm('Bạn có chắc chắn muốn chuyển đơn hàng này sang trạng thái Hoàn thành? Sau khi cập nhật sẽ không thể thay đổi lại.')) {
+                        selectEl.value = 'dang_thuc_hien';
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('order_id', orderId);
+                    formData.append('status', newStatus);
+                    
+                    fetch("{% url 'update_order_status' %}", {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            setDone(selectEl);
+                        } else {
+                            alert('Lỗi cập nhật tiến độ: ' + data.message);
+                            selectEl.value = 'dang_thuc_hien';
+                        }
+                    })
+                    .catch(e => {
+                        alert('Lỗi hệ thống khi cập nhật tiến độ.');
+                        selectEl.value = 'dang_thuc_hien';
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

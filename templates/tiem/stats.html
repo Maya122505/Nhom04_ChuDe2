@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê kinh doanh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
+                <div class="text-sm text-gray-400"></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        <span class="font-semibold text-gray-700">{{ shop_name|default:"Tên shop chưa thiết lập" }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-800">Thống kê kinh doanh</h1>
+                        <p class="text-[11px] text-gray-400">Cập nhật lần cuối: {{ last_updated }}</p>
+                    </div>
+                    <form method="GET" action="{% url 'vendor_stats' %}">
+                        <div class="bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-600 flex items-center gap-2 relative">
+                            <i class="fa-regular fa-calendar z-10 pointer-events-none"></i>
+                            <span class="z-10 pointer-events-none min-w-[80px] text-center">{{ display_month }}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 z-10 pointer-events-none"></i>
+                            <input type="month" name="month" value="{{ month_filter }}" onchange="this.form.submit()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        </div>
+                    </form>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-xs text-gray-400">Xu hướng doanh thu</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-lg font-bold text-[#F2789F]">{{ stats.revenue }}</span>
+                                    <span class="text-[10px] bg-[#E9F9F0] text-[#40B37A] px-2 py-0.5 rounded-full">{{ stats.revenue_delta }}</span>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-gray-400">
+                                <span class="flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-[#F2789F]"></span> {{ display_month }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="bg-[#FFF8FA] rounded-2xl p-5">
+                            {% if chart.path_line %}
+                            <svg viewBox="0 0 400 160" class="w-full h-40" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="pinkFill" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#F2789F" stop-opacity="0.35"></stop>
+                                        <stop offset="100%" stop-color="#F2789F" stop-opacity="0.05"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <path d="{{ chart.path_area }}" fill="url(#pinkFill)"></path>
+                                <path d="{{ chart.path_line }}" fill="none" stroke="#F2789F" stroke-width="2"></path>
+                                {% for p in chart.points %}
+                                <circle cx="{{ p.x }}" cy="{{ p.y }}" r="3" fill="#F2789F"><title>{{ p.label }}: {{ p.value|floatformat:0 }}đ</title></circle>
+                                {% endfor %}
+                            </svg>
+                            <div class="flex justify-between text-[10px] text-gray-400 mt-2">
+                                {% for lb in chart.labels %}
+                                    {% if forloop.first or forloop.last or forloop.counter0|divisibleby:3 %}
+                                        <span>{{ lb }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="h-40 flex items-center justify-center text-xs text-gray-400">Chưa có dữ liệu doanh thu</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] text-gray-400">Tổng đơn hàng</p>
+                                <p class="text-lg font-bold text-gray-800">{{ stats.orders_count }}</p>
+                                <p class="text-[10px] text-[#40B37A]">{{ stats.orders_delta }} so với kỳ trước</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-xl bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center">
+                                <i class="fa-solid fa-cart-shopping text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] text-gray-400">Doanh thu thực tế</p>
+                                <p class="text-lg font-bold text-gray-800">{{ stats.revenue }}</p>
+                                <p class="text-[10px] text-[#40B37A]">{{ stats.revenue_delta }} so với kỳ trước</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-xl bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center">
+                                <i class="fa-solid fa-coins text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-sm p-5 flex items-center justify-between">
+                            <div>
+                                <p class="text-[10px] text-gray-400">Đánh giá trung bình</p>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-lg font-bold text-gray-800">{{ stats.avg_rating }}</span>
+                                    <span class="text-[10px] text-gray-400">/5</span>
+                                </div>
+                                <p class="text-[10px] text-[#40B37A]">{{ stats.rating_delta }} so với kỳ trước</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-xl bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center">
+                                <i class="fa-solid fa-star text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-sm font-semibold text-gray-800">Đơn hàng hoàn thành gần đây</h2>
+                        <a href="#" class="text-[10px] text-[#F2789F]">Xem tất cả</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="text-[10px] uppercase text-gray-400">
+                                <tr class="text-left">
+                                    <th class="px-4 py-2 font-semibold">Mã đơn</th>
+                                    <th class="px-4 py-2 font-semibold">Khách hàng</th>
+                                    <th class="px-4 py-2 font-semibold">Ngày thanh toán</th>
+                                    <th class="px-4 py-2 font-semibold">Tổng tiền</th>
+                                    <th class="px-4 py-2 font-semibold">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y text-gray-700">
+                                {% for dh in completed_orders %}
+                                <tr>
+                                    <td class="px-4 py-3 font-semibold">#{{ dh.id }}</td>
+                                    <td class="px-4 py-3">{{ dh.khach }}</td>
+                                    <td class="px-4 py-3 text-gray-500">{{ dh.ngay_thanh_toan }}</td>
+                                    <td class="px-4 py-3 text-gray-800">{{ dh.tong_tien }}</td>
+                                    <td class="px-4 py-3"><span class="px-3 py-1 rounded-full bg-[#E9F9F0] text-[#40B37A] text-[10px]">{{ dh.status }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="px-4 py-3 text-center text-gray-500">Chưa có đơn hàng hoàn thành.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <h2 class="text-sm font-semibold text-gray-800 mb-4">Phân loại thiết kế</h2>
+                        <div class="flex items-center gap-6">
+                            <div class="relative w-40 h-40">
+                                <svg viewBox="0 0 36 36" class="w-40 h-40 -rotate-90">
+                                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#F1F2F6" stroke-width="4"></circle>
+                                    {% for cat in category_list %}
+                                    <circle cx="18" cy="18" r="15.9155" fill="none"
+                                            stroke="{{ cat.color }}" stroke-width="4"
+                                            stroke-dasharray="{{ cat.dash }} 100"
+                                            stroke-dashoffset="{{ cat.offset }}"
+                                            pathLength="100"></circle>
+                                    {% endfor %}
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                    <div class="text-lg font-bold text-gray-800">{{ stats.orders_count }}</div>
+                                    <div class="text-[10px] text-gray-400">Đơn hàng</div>
+                                </div>
+                            </div>
+                            <div class="space-y-3 text-xs">
+                                {% for cat in category_list %}
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full" style="background-color: {{ cat.color }}"></span>
+                                    {{ cat.name }}
+                                    <span class="ml-auto text-[10px] text-gray-400">{{ cat.percent }}% ({{ cat.count }})</span>
+                                </div>
+                                {% empty %}
+                                <p class="text-gray-400">Chưa có dữ liệu</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-semibold text-gray-800">Phản hồi từ khách hàng</h2>
+                            <a href="#" class="text-[10px] text-[#F2789F]">Xem tất cả</a>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            {% for rv in recent_reviews %}
+                            <div class="border border-gray-100 rounded-2xl p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center text-[10px] font-semibold">{{ rv.initials }}</div>
+                                        <div>
+                                            <div class="font-semibold text-gray-800">{{ rv.name }}</div>
+                                            <div class="text-[10px] text-gray-400">{{ rv.time_text }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[#F59E0B] text-[10px]">
+                                        {% for _ in rv.rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                        {% endfor %}
+                                        {% for _ in rv.rating_empty %}
+                                        <i class="fa-regular fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="text-gray-500 mt-2">"{{ rv.content }}"</p>
+                            </div>
+                            {% empty %}
+                            <p class="text-gray-400 text-center">Chưa có phản hồi nào.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+<script>
+    const rawProfile = localStorage.getItem('vendor_profile');
+    if (rawProfile) {
+        try {
+            const data = JSON.parse(rawProfile);
+            if (data.logo) {
+                const headerLogo = document.getElementById('header-logo');
+                if (headerLogo) headerLogo.src = data.logo;
+            }
+        } catch (err) {}
+    }
+</script>
+</body>
+</html>

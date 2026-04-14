@@ -1,0 +1,49 @@
+{% extends 'khach/base.html' %}
+
+{% block title %}FlowerHub - Trang chủ{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center pt-16 px-4 pb-20 w-full">
+    <h1 class="text-5xl font-extrabold text-brand mb-10 flex items-center gap-3">
+        🌸 Tìm kiếm tiệm hoa
+    </h1>
+
+    <form action="{% url 'search' %}" method="GET" class="w-full max-w-3xl relative mb-20">
+        <input name="q" type="text" placeholder="Tìm kiếm tiệm hoa, phong cách, dịch vụ,..." class="w-full px-8 py-5 border-2 border-brand-light rounded-full text-lg outline-none focus:border-brand transition glass-input shadow-sm">
+        <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-brand text-3xl font-bold p-2 hover:scale-110 transition">⌕</button>
+    </form>
+
+    <div class="w-full max-w-6xl">
+        <div class="flex justify-between items-end mb-8 border-b-2 border-brand-light pb-2">
+            <h2 class="text-3xl font-extrabold text-gray-800">Tiệm hoa nổi bật</h2>
+            <a href="{% url 'search' %}" class="text-brand font-bold hover:underline">Xem tất cả →</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for s in shops %}
+            <div class="bg-white rounded-3xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl transition duration-300 flex flex-col">
+                <img src="{{ s.card_image_url }}" class="w-full h-56 object-cover" alt="{{ s.User_id.first_name|default:s.User_id.username }}">
+                <div class="p-6 flex flex-col flex-grow">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-extrabold text-gray-800 flex items-center gap-1">
+                            {{ s.User_id.first_name|default:s.User_id.username }} <span class="text-brand text-lg">✔</span>
+                        </h3>
+                        {% if s.the_loai %}<span class="bg-brand-light text-brand text-[10px] font-bold px-2 py-1 rounded-full uppercase">{{ s.the_loai }}</span>{% endif %}
+                    </div>
+                    <p class="text-gray-600 font-medium text-sm mb-4 flex-grow">{{ s.moTa }}</p>
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                        <div class="flex items-center gap-1">
+                            <span class="text-yellow-400 text-sm">★★★★★</span>
+                            <span class="text-xs text-gray-500 font-bold">({{ s.diemTrungBinh }}/5)</span>
+                        </div>
+                        <a href="{% url 'detail' s.pk %}" class="text-brand font-bold text-sm hover:underline">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="col-span-3 text-center text-gray-400">Chưa có tiệm hoa nào.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

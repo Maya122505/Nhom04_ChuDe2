@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-white rounded-[32px] shadow-2xl border border-pink-100 overflow-hidden flex flex-col h-[600px]">
+    <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0">
+        <div class="flex items-center space-x-3">
+            <img src="{% static 'images/tiemhoa1.jpg' %}" class="w-10 h-10 rounded-full object-cover border-2 border-pink-200">
+            <div>
+                <p class="font-extrabold text-sm text-gray-800">Lavender Studio</p>
+                <p class="text-[10px] text-green-500 font-bold">● Đang hoạt động</p>
+            </div>
+        </div>
+        <button class="text-gray-300 hover:text-pink-500"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50/50">
+        <div class="flex items-start space-x-2">
+            <img src="{% static 'images/tiemhoa1.jpg' %}" class="w-6 h-6 rounded-full object-cover mt-1">
+            <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 max-w-[80%] text-xs leading-relaxed">
+                Chào bạn! Lavender Studio có thể giúp gì cho bạn trong việc thiết kế hoa hôm nay ạ?
+            </div>
+        </div>
+
+        <div class="flex flex-col items-end space-y-1">
+            <div class="bg-pink-500 text-white p-3 rounded-2xl rounded-tr-none shadow-md max-w-[80%] text-xs leading-relaxed" style="background-color: #F2789F;">
+                Chào shop, mình muốn đặt một bó hoa hồng pastel kinh phí khoảng 500k ạ. Shop có mẫu nào không?
+            </div>
+            <span class="text-[9px] text-gray-300 mr-2">Đã xem 10:21</span>
+        </div>
+
+        <div class="flex items-start space-x-2">
+            <img src="{% static 'images/tiemhoa1.jpg' %}" class="w-6 h-6 rounded-full object-cover mt-1">
+            <div class="space-y-2">
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 max-w-[80%] text-xs">
+                    Dạ shop có mẫu này cực xinh luôn ạ:
+                </div>
+                <img src="{% static 'images/tiemhoa2.jpg' %}" class="w-40 h-40 object-cover rounded-2xl shadow-md border-2 border-white">
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white border-t flex items-center space-x-2">
+        <button class="text-gray-300 hover:text-pink-500 transition"><i class="fas fa-image"></i></button>
+        <input type="text" placeholder="Nhập tin nhắn của bạn..." class="flex-1 p-3 bg-gray-50 rounded-2xl text-xs outline-none focus:ring-1 focus:ring-pink-200">
+        <button class="bg-pink-500 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition" style="background-color: #F2789F;">
+            <i class="fas fa-paper-plane text-xs"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}

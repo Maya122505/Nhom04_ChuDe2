@@ -1,0 +1,66 @@
+<div id="userDetailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl transform scale-90 transition-all duration-300 relative">
+        <button onclick="closeModal()" class="absolute top-8 right-8 text-gray-300 hover:text-gray-500 transition-all hover:rotate-90">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+
+        <div class="text-center">
+            <h3 class="text-xl font-black text-gray-800 mb-8 uppercase tracking-widest">Chi tiết người dùng</h3>
+
+            <div id="modalAvatar" class="w-24 h-24 bg-pink-50 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-black text-[#F2789F] shadow-inner border-4 border-white">
+                NH
+            </div>
+            <p id="modalName" class="font-black text-gray-800 text-2xl tracking-tight">Nguyễn Văn Hùng</p>
+            <p id="modalRole" class="text-[#F2789F] text-xs font-black uppercase tracking-[0.2em] mt-2">Khách hàng</p>
+
+            <div class="mt-10 space-y-6 text-left border-t border-gray-50 pt-10">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-black uppercase tracking-widest">Ngày tham gia</span>
+                    <span class="font-bold text-gray-700 text-sm">12/05/2023</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-black uppercase tracking-widest">Số điện thoại</span>
+                    <span class="font-bold text-gray-700 text-sm">0987 654 321</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-black uppercase tracking-widest">Tổng đơn hàng</span>
+                    <span class="font-black text-[#F2789F] text-sm bg-pink-50 px-3 py-1 rounded-lg">15 đơn hàng</span>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mt-12">
+                <button onclick="closeModal()" class="flex-1 py-4 bg-gray-50 rounded-2xl font-black text-gray-400 hover:bg-gray-100 transition-all uppercase text-[11px] tracking-widest">Đóng</button>
+                <button class="flex-1 py-4 bg-[#F2789F] text-white rounded-2xl font-black shadow-lg shadow-pink-100 hover:opacity-90 transition-all uppercase text-[11px] tracking-widest">Khóa tài khoản</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(name, role) {
+        const modal = document.getElementById('userDetailModal');
+        document.getElementById('modalName').innerText = name;
+        document.getElementById('modalRole').innerText = role;
+        document.getElementById('modalAvatar').innerText = name.substring(0, 2).toUpperCase();
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-90');
+        }, 10);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('userDetailModal');
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-90');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('userDetailModal');
+        if (event.target == modal) closeModal();
+    }
+</script>

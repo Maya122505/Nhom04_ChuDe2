@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowerHub - Đang chờ phê duyệt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#e695b2',
+                            light: '#fdeff4',
+                            dark: '#c4698b',
+                            text: '#4a4a4a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { color: #333; }
+    </style>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+    <header class="flex justify-between items-center py-4 px-10 border-b border-gray-100 sticky top-0 bg-white z-50 shadow-sm">
+        <a href="{% url 'after_login' %}" class="text-3xl font-extrabold text-brand flex items-center gap-2">
+            🌸 FlowerHub
+        </a>
+        <nav class="hidden md:flex gap-8 font-bold text-gray-700 text-lg">
+            <a href="{% url 'after_login' %}" class="hover:text-brand transition">Trang chủ</a>
+            <a href="{% url 'order_status' %}" class="text-brand transition">Đơn hàng của tôi</a>
+            <a href="{% url 'quote_list' %}" class="hover:text-brand transition">Xác nhận báo giá</a>
+        </nav>
+        <div class="flex items-center gap-5">
+            <button class="relative">
+                <span data-notif-dot class="hidden absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-brand text-white text-[10px] font-bold items-center justify-center"></span>
+                <svg class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0h6z" />
+                </svg>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-full bg-brand-light flex items-center justify-center text-brand font-extrabold">{{ user.username|slice:":1"|upper }}</div>
+                <span class="font-bold text-gray-700">{{ user.username }}</span>
+            </div>
+            <a href="{% url 'logout' %}" class="text-gray-400 hover:text-red-500 transition" aria-label="Đăng xuất">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow bg-[#fff7fb]">
+        <section class="max-w-6xl mx-auto px-6 pt-8 pb-16">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-brand">Tạo yêu cầu</h1>
+                <div class="flex items-center gap-4 text-xs md:text-sm font-semibold text-gray-400">
+                    <div class="flex items-center gap-2 text-brand">
+                        <span class="w-7 h-7 rounded-full bg-brand text-white flex items-center justify-center font-bold">1</span>
+                        <span>Tạo yêu cầu</span>
+                    </div>
+                    <div class="w-16 h-[2px] bg-gray-200"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center font-bold">2</span>
+                        <span>Nhận báo giá</span>
+                    </div>
+                    <div class="w-16 h-[2px] bg-gray-200"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center font-bold">3</span>
+                        <span>Thanh toán</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-pink-100 p-10">
+                <div class="w-full max-w-xl mx-auto text-center">
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center mx-auto mb-4">
+                        <svg class="animate-spin w-8 h-8 text-brand" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-lg font-bold text-gray-700 mb-1">Đang chờ tiệm duyệt yêu cầu...</p>
+                    <p class="text-sm text-gray-400 mb-6">Tiệm sẽ phản hồi trong giây lát</p>
+
+                    <div class="bg-gray-50 rounded-2xl p-5 text-left text-sm text-gray-600 space-y-2">
+                        <div class="flex justify-between"><span class="font-bold">Mã đơn:</span><span>#{{ order.maDonHang }}</span></div>
+                        <div class="flex justify-between"><span class="font-bold">Tiệm hoa:</span><span>{{ order.tiemhoa_id.User_id.first_name|default:order.tiemhoa_id.User_id.username }}</span></div>
+                        <div class="flex justify-between"><span class="font-bold">Dịp:</span><span>{{ order.dipSuDung }}</span></div>
+                        <div class="flex justify-between"><span class="font-bold">Phong cách:</span><span>{{ order.phongCach }}</span></div>
+                        <div class="flex justify-between"><span class="font-bold">Ngân sách:</span><span>{{ order.nganSach }}đ</span></div>
+                        <div class="flex justify-between"><span class="font-bold">Giao hàng:</span><span class="text-right">{{ order.dia_chi_nhan_hang }}</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-brand-light pt-16 pb-8 px-10 border-t border-brand mt-auto">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div>
+                <h3 class="text-3xl font-extrabold text-brand mb-4">🌸 FlowerHub</h3>
+                <p class="text-gray-600 font-semibold leading-relaxed">Nền tảng đặt hoa trực tuyến hàng đầu Việt Nam, kết nối bạn với những nghệ nhân hoa tài năng nhất.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Dịch vụ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li><a href="#" class="hover:text-brand">Tìm kiếm tiệm hoa</a></li>
+                    <li><a href="#" class="hover:text-brand">Gói quà tặng</a></li>
+                    <li><a href="#" class="hover:text-brand">Hoa sự kiện</a></li>
+                    <li><a href="#" class="hover:text-brand">Hoa cưới</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Hỗ trợ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li><a href="#" class="hover:text-brand">Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="hover:text-brand">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="hover:text-brand">Điều khoản dịch vụ</a></li>
+                    <li><a href="#" class="hover:text-brand">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 mb-4 text-lg">Liên hệ</h4>
+                <ul class="space-y-3 text-gray-600 font-semibold">
+                    <li>flower@example.com</li>
+                    <li>0123456789</li>
+                    <li>Số 1, Đường Hoa, Hà Nội</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 font-semibold text-sm pt-6 border-t border-gray-300 opacity-50">
+            © 2026 FlowerHub. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const statusUrl = "{% url 'order_status_json' order.pk %}";
+        const quoteUrl = "{% url 'quote_confirm' order.pk %}";
+        const poll = setInterval(async () => {
+            try {
+                const r = await fetch(statusUrl);
+                const d = await r.json();
+                if (d.approved) {
+                    clearInterval(poll);
+                    window.location.href = quoteUrl;
+                }
+            } catch (e) { /* retry next tick */ }
+        }, 1500);
+    </script>
+<script src="/static/js/notif_kh.js"></script>
+</body>
+</html>

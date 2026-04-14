@@ -1,0 +1,102 @@
+{% extends 'khach/base.html' %}
+
+{% block title %}Kết quả tìm kiếm - FlowerHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Ẩn thanh cuộn để giao diện sạch sẽ */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .snaps-inline {
+        scroll-snap-type: inline mandatory;
+        scroll-padding-inline: 1rem;
+    }
+    .snaps-inline > * {
+        scroll-snap-align: start;
+    }
+
+    /* Hiệu ứng mờ dần khi chuyển trang */
+    .flower-item {
+        transition: all 0.4s ease;
+    }
+
+    /* Định dạng nút phân trang chuẩn UI */
+    .page-btn-active {
+        background-color: #E87A90; /* Màu brand hồng */
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-brand-light py-10 px-4 flex flex-col items-center w-full">
+    <div class="w-full max-w-6xl">
+        <h1 class="text-4xl font-extrabold text-white mb-2 drop-shadow-md">🌸 Tìm kiếm tiệm hoa</h1>
+        <p class="text-white font-semibold mb-6">Kết nối bạn với những nghệ nhân cắm hoa tài hoa nhất</p>
+        <form action="{% url 'search' %}" method="GET" class="bg-white p-4 rounded-3xl shadow-lg flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
+            <input name="q" value="{{ request.GET.q }}" type="text" placeholder="Nhập tên tiệm hoa, phong cách..." class="flex-grow px-6 py-3 border border-gray-200 rounded-full outline-none focus:ring-2 focus:ring-brand text-gray-700">
+            <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-10 rounded-full transition active:scale-95 shadow-md">Tìm kiếm</button>
+        </form>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto w-full py-12 px-4">
+    <div class="flex justify-between items-center border border-brand rounded-full px-6 py-3 mb-10 bg-white shadow-sm">
+        <span class="font-bold text-gray-600 text-lg">Tìm thấy <span class="text-brand">{{ total }}</span> kết quả{% if query %} cho "{{ query }}"{% endif %}</span>
+        <select class="font-bold text-gray-700 outline-none bg-transparent cursor-pointer">
+            <option>Phù hợp nhất</option>
+            <option>Đánh giá cao</option>
+            <option>Mới nhất</option>
+        </select>
+    </div>
+
+    <div id="flower-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8">
+        {% for s in flower_shops %}
+        <div class="flower-item bg-white rounded-3xl overflow-hidden shadow-md border border-gray-100 flex flex-col hover:shadow-xl transition">
+            <img src="{{ s.card_image_url }}" class="w-full h-52 object-cover" alt="{{ s.User_id.first_name|default:s.User_id.username }}">
+            <div class="p-6 flex-1 flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-extrabold text-gray-800">{{ s.User_id.first_name|default:s.User_id.username }} <span class="text-brand text-sm">✔</span></h3>
+                    {% if s.the_loai %}<span class="bg-brand-light text-brand text-[10px] font-bold px-2 py-1 rounded-full uppercase">{{ s.the_loai }}</span>{% endif %}
+                </div>
+                <p class="text-gray-600 text-sm mb-4 flex-1">{{ s.moTa }}</p>
+                <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                    <span class="text-yellow-400 text-sm">★★★★★ <span class="text-gray-500 text-xs font-bold">({{ s.diemTrungBinh }})</span></span>
+                    <a href="{% url 'detail' s.pk %}" class="text-brand font-bold text-sm hover:underline">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-16">
+            <p class="text-gray-500 text-lg font-semibold">Không tìm thấy tiệm hoa phù hợp với "{{ query }}"</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if paginator.num_pages > 1 %}
+    <div class="flex justify-center items-center gap-3 mt-12">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="w-10 h-10 rounded-lg border border-brand text-brand font-bold flex items-center justify-center hover:bg-brand hover:text-white transition shadow-sm">‹</a>
+        {% else %}
+            <span class="w-10 h-10 rounded-lg border border-gray-200 text-gray-300 font-bold flex items-center justify-center">‹</span>
+        {% endif %}
+
+        {% for p in paginator.page_range %}
+            {% if p == page_obj.number %}
+                <span class="w-10 h-10 rounded-lg bg-brand text-white font-bold flex items-center justify-center shadow-md">{{ p }}</span>
+            {% else %}
+                <a href="?page={{ p }}{% if query %}&q={{ query }}{% endif %}" class="w-10 h-10 rounded-lg border border-brand text-brand font-bold flex items-center justify-center hover:bg-brand-light transition">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="w-10 h-10 rounded-lg border border-brand text-brand font-bold flex items-center justify-center hover:bg-brand hover:text-white transition shadow-sm">›</a>
+        {% else %}
+            <span class="w-10 h-10 rounded-lg border border-gray-200 text-gray-300 font-bold flex items-center justify-center">›</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

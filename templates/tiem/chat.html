@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - FlowerHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 bg-white border-b border-gray-100 px-6 flex items-center justify-between">
+                <div></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500"><i class="fa-regular fa-bell"></i></button>
+                    <div class="flex items-center gap-2">
+                        {% if logo_url %}
+                            <img src="{{ logo_url }}" class="w-8 h-8 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <span class="font-semibold text-gray-700">{{ shop_name|default:"Tên shop chưa thiết lập" }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]"><i class="fa-solid fa-right-from-bracket"></i></a>
+                </div>
+            </header>
+
+            <div class="flex flex-1 min-h-0">
+                <aside class="w-72 bg-white border-r border-gray-100 flex flex-col">
+                    <div class="px-4 py-3 border-b border-gray-100 text-sm font-semibold text-[#F2789F] text-center">Chat</div>
+                    <div class="p-4">
+                        <div class="flex items-center gap-2 bg-[#F9FAFB] border border-gray-200 rounded-full px-3 py-2">
+                            <i class="fa-solid fa-magnifying-glass text-gray-400 text-[10px]"></i>
+                            <input id="chat-search" type="text" class="bg-transparent outline-none flex-1 text-xs" placeholder="Tìm kiếm khách hàng...">
+                        </div>
+                    </div>
+                    <div id="chat-list" class="flex-1 overflow-y-auto px-3 space-y-2 pb-4">
+                        {% for phien in chat_list %}
+                        <a href="?chat_id={{ phien.phien_id }}"
+                           data-phien-id="{{ phien.phien_id }}"
+                           data-name="{{ phien.khach_name|lower }}"
+                           class="chat-item w-full flex items-center gap-3 p-3 rounded-2xl {% if active_chat and active_chat.phien_id == phien.phien_id %}bg-[#FBE9F1]{% else %}hover:bg-[#FBE9F1]{% endif %} text-left">
+                            <div class="w-10 h-10 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-sm font-bold shrink-0">{{ phien.avatar_letter }}</div>
+                            <div class="flex-1 overflow-hidden">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="text-xs font-semibold text-gray-800 truncate">{{ phien.khach_name }}</div>
+                                    <div class="text-[10px] text-gray-300 shrink-0">{{ phien.time_text }}</div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 mt-0.5">
+                                    <div class="text-[11px] text-gray-400 truncate {% if phien.unread %}font-semibold text-gray-700{% endif %}">{{ phien.last_msg|default:"Chưa có tin nhắn" }}</div>
+                                    <span class="badge-unread inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#F2789F] text-white text-[10px] font-bold {% if not phien.unread %}hidden{% endif %}">{{ phien.unread }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-center text-xs text-gray-400 p-4">Chưa có phiên nhắn tin nào</div>
+                        {% endfor %}
+                    </div>
+                </aside>
+
+                <section class="flex-1 flex flex-col bg-white">
+                    {% if active_chat %}
+                    <div class="h-14 bg-white border-b border-gray-100 px-5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-sm font-bold">{{ active_chat.avatar_letter }}</div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">{{ active_chat.khach_name }}</div>
+                                <div class="text-[10px] text-green-500">Đang hoạt động</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-info text-gray-300 text-sm"></i>
+                    </div>
+
+                    <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8FAFC]">
+                        <div class="text-center text-[11px] text-gray-400">Hôm nay</div>
+                        {% for msg in active_chat.messages %}
+                            {% if msg.maTaiKhoan_id == shop_user_id %}
+                                <div class="flex justify-end" data-msg-id="{{ msg.maTinNhan }}">
+                                    <div class="max-w-md">
+                                        <div class="bg-[#F2789F] text-white text-sm px-4 py-2 rounded-2xl rounded-tr-none">
+                                            {% if msg.noiDung %}{{ msg.noiDung }}{% endif %}
+                                            {% if msg.hinhAnh %}<img src="{{ msg.hinhAnh.url }}" class="mt-2 max-w-full rounded-xl">{% endif %}
+                                        </div>
+                                        <div class="text-[9px] text-gray-300 mt-1 text-right">{{ msg.thoiGian|date:"H:i" }}</div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="flex items-start gap-2" data-msg-id="{{ msg.maTinNhan }}">
+                                    <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold mt-1 shrink-0">{{ active_chat.avatar_letter }}</div>
+                                    <div class="max-w-md">
+                                        <div class="bg-white border border-gray-100 text-sm text-gray-700 px-4 py-2 rounded-2xl rounded-tl-none shadow-sm">
+                                            {% if msg.noiDung %}{{ msg.noiDung }}{% endif %}
+                                            {% if msg.hinhAnh %}<img src="{{ msg.hinhAnh.url }}" class="mt-2 max-w-full rounded-xl">{% endif %}
+                                        </div>
+                                        <div class="text-[9px] text-gray-300 mt-1">{{ msg.thoiGian|date:"H:i" }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="text-center text-xs text-gray-400 p-4">Hai bên chưa có tin nhắn nào. Hãy bắt đầu trò chuyện!</div>
+                        {% endfor %}
+                    </div>
+
+                    <form id="chat-form" class="bg-white border-t border-gray-100 p-4" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div id="chat-img-preview" class="hidden mb-2 flex items-center gap-2">
+                            <img id="chat-img-thumb" class="w-16 h-16 rounded-xl object-cover border border-gray-200">
+                            <button type="button" id="chat-img-remove" class="text-xs text-gray-400 hover:text-[#F2789F]"><i class="fa-solid fa-xmark"></i> Bỏ ảnh</button>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" class="w-9 h-9 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center"><i class="fa-solid fa-plus text-xs"></i></button>
+                            <label class="w-9 h-9 rounded-full border border-gray-200 text-gray-400 flex items-center justify-center cursor-pointer">
+                                <i class="fa-regular fa-image text-xs"></i>
+                                <input type="file" id="chat-img" name="hinhAnh" accept="image/*" class="hidden">
+                            </label>
+                            <div class="flex-1 bg-[#F9FAFB] border border-gray-200 rounded-full px-4 py-2">
+                                <input id="chat-input" name="noiDung" type="text" class="bg-transparent outline-none w-full text-sm" placeholder="Nhập tin nhắn của bạn...">
+                            </div>
+                            <button id="chat-send" type="submit" class="bg-[#F2789F] hover:bg-[#e65d8e] text-white text-sm px-5 py-2 rounded-full font-semibold">Gửi</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="flex-1 flex items-center justify-center text-sm text-gray-400">Chọn một đoạn chat để bắt đầu</div>
+                    {% endif %}
+                </section>
+            </div>
+        </main>
+    </div>
+
+    {% if active_chat %}
+    <script>
+        const phienId = "{{ active_chat.phien_id|escapejs }}";
+        const sendUrl = "{% url 'vendor_chat_send' active_chat.phien_id %}";
+        const pollUrl = "{% url 'vendor_chat_messages' active_chat.phien_id %}";
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const messages = document.getElementById('chat-messages');
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('chat-input');
+        const imgInput = document.getElementById('chat-img');
+        const imgPreview = document.getElementById('chat-img-preview');
+        const imgThumb = document.getElementById('chat-img-thumb');
+        const imgRemove = document.getElementById('chat-img-remove');
+        const avatarLetter = "{{ active_chat.avatar_letter|escapejs }}";
+
+        let lastId = 0;
+        document.querySelectorAll('[data-msg-id]').forEach(el => {
+            const id = parseInt(el.dataset.msgId);
+            if (id > lastId) lastId = id;
+        });
+
+        const escapeHtml = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+        function appendMessage(m) {
+            const wrap = document.createElement('div');
+            wrap.dataset.msgId = m.id;
+            const imgHtml = m.hinhAnh ? `<img src="${m.hinhAnh}" class="mt-2 max-w-full rounded-xl">` : '';
+            const text = m.noiDung ? escapeHtml(m.noiDung) : '';
+            if (m.is_me) {
+                wrap.className = 'flex justify-end';
+                wrap.innerHTML = `<div class="max-w-md"><div class="bg-[#F2789F] text-white text-sm px-4 py-2 rounded-2xl rounded-tr-none">${text}${imgHtml}</div><div class="text-[9px] text-gray-300 mt-1 text-right">${m.thoiGian}</div></div>`;
+            } else {
+                wrap.className = 'flex items-start gap-2';
+                wrap.innerHTML = `<div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold mt-1 shrink-0">${avatarLetter}</div><div class="max-w-md"><div class="bg-white border border-gray-100 text-sm text-gray-700 px-4 py-2 rounded-2xl rounded-tl-none shadow-sm">${text}${imgHtml}</div><div class="text-[9px] text-gray-300 mt-1">${m.thoiGian}</div></div>`;
+            }
+            messages.appendChild(wrap);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function poll() {
+            try {
+                const r = await fetch(`${pollUrl}?after=${lastId}`);
+                const d = await r.json();
+                for (const m of d.messages) {
+                    if (m.id > lastId) {
+                        appendMessage(m);
+                        lastId = m.id;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        imgInput.addEventListener('change', () => {
+            const f = imgInput.files[0];
+            if (!f) { imgPreview.classList.add('hidden'); return; }
+            imgThumb.src = URL.createObjectURL(f);
+            imgPreview.classList.remove('hidden');
+        });
+        imgRemove.addEventListener('click', () => {
+            imgInput.value = '';
+            imgPreview.classList.add('hidden');
+        });
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const text = input.value.trim();
+            const f = imgInput.files[0];
+            if (!text && !f) return;
+            const fd = new FormData();
+            fd.append('noiDung', text);
+            if (f) fd.append('hinhAnh', f);
+            input.value = '';
+            imgInput.value = '';
+            imgPreview.classList.add('hidden');
+            try {
+                const r = await fetch(sendUrl, {
+                    method: 'POST', body: fd,
+                    headers: {'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest'},
+                });
+                const d = await r.json();
+                if (d.ok && d.message && d.message.id > lastId) {
+                    appendMessage(d.message);
+                    lastId = d.message.id;
+                }
+            } catch (err) {}
+        });
+
+        let timer = null;
+        function startPolling() { if (timer) return; poll(); timer = setInterval(poll, 2000); }
+        function stopPolling() { if (timer) { clearInterval(timer); timer = null; } }
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') startPolling(); else stopPolling();
+        });
+        if (document.visibilityState === 'visible') startPolling();
+        messages.scrollTop = messages.scrollHeight;
+    </script>
+    {% endif %}
+
+    <script>
+        const search = document.getElementById('chat-search');
+        if (search) {
+            search.addEventListener('input', () => {
+                const q = search.value.trim().toLowerCase();
+                document.querySelectorAll('.chat-item').forEach(el => {
+                    el.style.display = (!q || el.dataset.name.includes(q)) ? '' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

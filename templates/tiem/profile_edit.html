@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật hồ sơ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#E8EDF4] text-gray-700">
+    <div class="min-h-screen flex">
+        {% include 'tiem/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="h-16 bg-white border-b border-gray-100 px-8 flex items-center justify-between">
+                <div></div>
+                <div class="flex items-center gap-4 text-sm">
+                    <button class="relative text-gray-500"><i class="fa-regular fa-bell"></i></button>
+                    <div class="flex items-center gap-2">
+                        {% if shop.logoTiemHoa %}
+                            <img src="{{ shop.logoTiemHoa.url }}" class="w-8 h-8 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-[#FBE9F1] flex items-center justify-center text-[#F2789F] text-xs font-bold">{{ shop_name|slice:":1"|upper }}</div>
+                        {% endif %}
+                        <span class="font-semibold text-gray-700">{{ shop_name }}</span>
+                    </div>
+                    <a href="{% url 'logout_shop' %}" class="text-gray-400 hover:text-[#F2789F]"><i class="fa-solid fa-right-from-bracket"></i></a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6">
+                <h1 class="text-lg font-semibold text-gray-800 mb-5">Cập nhật hồ sơ năng lực</h1>
+
+                <form method="post" action="{% url 'vendor_profile_edit' %}" enctype="multipart/form-data" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Thông tin cơ bản -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                                <i class="fa-solid fa-id-card text-[10px]"></i>
+                            </span>
+                            <h2 class="text-sm font-semibold text-gray-800">Thông tin cơ bản</h2>
+                        </div>
+                        <div class="grid md:grid-cols-[180px_1fr] gap-6">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-2">Logo thương hiệu</label>
+                                <label for="logo-upload" class="relative block aspect-square rounded-xl overflow-hidden bg-[#F9FAFB] border border-gray-200 cursor-pointer">
+                                    {% if shop.logoTiemHoa %}<img id="logo-preview" src="{{ shop.logoTiemHoa.url }}" class="w-full h-full object-cover">{% else %}<img id="logo-preview" class="w-full h-full object-cover hidden">{% endif %}
+                                    <div id="logo-placeholder" class="{% if shop.logoTiemHoa %}hidden {% endif %}absolute inset-0 flex flex-col items-center justify-center text-xs text-gray-400">
+                                        <i class="fa-solid fa-camera text-xl mb-2"></i>
+                                        <span>Tải ảnh (Tối đa 2MB)</span>
+                                    </div>
+                                </label>
+                                <input id="logo-upload" name="logo" type="file" accept="image/*" class="hidden">
+                                <p class="text-[10px] text-gray-400 mt-2 text-center">Định dạng hỗ trợ: JPG, PNG, WEBP</p>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">Tên tiệm hoa</label>
+                                    <input name="ten_tiem" value="{{ shop.User_id.first_name }}" required class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">Mô tả phong cách & Năng lực</label>
+                                    <textarea name="mo_ta" rows="5" placeholder="Chia sẻ về phong cách thiết kế, kinh nghiệm và loại hoa thế mạnh của bạn..." class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">{{ shop.moTa }}</textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">Thể loại chính</label>
+                                    <select name="the_loai" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                                        {% for opt in "Hoa cưới,Hoa sự kiện,Hoa sinh nhật,Hoa khai trương,Hoa bó/lẵng,Hoa định kỳ"|stringformat:"s"|slice:":0" %}{% endfor %}
+                                        <option value="Hoa cưới" {% if shop.the_loai == "Hoa cưới" %}selected{% endif %}>Hoa cưới</option>
+                                        <option value="Hoa sự kiện" {% if shop.the_loai == "Hoa sự kiện" %}selected{% endif %}>Hoa sự kiện</option>
+                                        <option value="Hoa sinh nhật" {% if shop.the_loai == "Hoa sinh nhật" %}selected{% endif %}>Hoa sinh nhật</option>
+                                        <option value="Hoa khai trương" {% if shop.the_loai == "Hoa khai trương" %}selected{% endif %}>Hoa khai trương</option>
+                                        <option value="Hoa bó/lẵng" {% if shop.the_loai == "Hoa bó/lẵng" %}selected{% endif %}>Hoa bó/lẵng</option>
+                                        <option value="Hoa định kỳ" {% if shop.the_loai == "Hoa định kỳ" %}selected{% endif %}>Hoa định kỳ</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Album -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                                <i class="fa-solid fa-images text-[10px]"></i>
+                            </span>
+                            <h2 class="text-sm font-semibold text-gray-800">Album sản phẩm mẫu</h2>
+                            <span class="ml-auto text-[11px] text-gray-400">{{ shop.gallery.count }} ảnh</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mb-4">Mỗi loại có thể upload nhiều ảnh. Click 🗑 trên ảnh hiện có để đánh dấu xoá khi lưu.</p>
+
+                        {% for sec in gallery_sections %}
+                        <details class="border border-gray-100 rounded-xl mb-3" {% if sec.images %}open{% endif %}>
+                            <summary class="cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                                <span><i class="fa-solid fa-folder-open text-[#F2789F] mr-2"></i> {{ sec.name }}</span>
+                                <span class="text-[11px] text-gray-400">{{ sec.images|length }} ảnh</span>
+                            </summary>
+                            <div class="p-4 border-t border-gray-100">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="grid-{{ sec.slug }}">
+                                    {% for img in sec.images %}
+                                    <div class="relative aspect-square rounded-xl overflow-hidden">
+                                        <img src="{{ img.image.url }}" class="w-full h-full object-cover">
+                                        <label class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 shadow text-red-500 flex items-center justify-center cursor-pointer text-[10px]">
+                                            <input type="checkbox" name="delete_image_ids" value="{{ img.id }}" class="delete-chk hidden">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                    <label class="relative aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-[#F9FAFB] flex flex-col items-center justify-center text-[11px] text-gray-400 cursor-pointer hover:bg-pink-50">
+                                        <div class="w-8 h-8 rounded-full border flex items-center justify-center mb-1"><i class="fa-solid fa-plus text-xs"></i></div>
+                                        Thêm ảnh
+                                        <input data-grid="grid-{{ sec.slug }}" name="gallery_{{ sec.slug }}" type="file" accept="image/*" multiple class="hidden gallery-input">
+                                    </label>
+                                </div>
+                            </div>
+                        </details>
+                        {% endfor %}
+
+                        {% if gallery_others %}
+                        <details class="border border-gray-100 rounded-xl mb-3">
+                            <summary class="cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                                <span><i class="fa-solid fa-folder text-gray-400 mr-2"></i> Chưa phân loại</span>
+                                <span class="text-[11px] text-gray-400">{{ gallery_others|length }} ảnh</span>
+                            </summary>
+                            <div class="p-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {% for img in gallery_others %}
+                                <div class="relative aspect-square rounded-xl overflow-hidden">
+                                    <img src="{{ img.image.url }}" class="w-full h-full object-cover">
+                                    <label class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 shadow text-red-500 flex items-center justify-center cursor-pointer text-[10px]">
+                                        <input type="checkbox" name="delete_image_ids" value="{{ img.id }}" class="delete-chk hidden">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </details>
+                        {% endif %}
+                    </div>
+
+                    <!-- Địa chỉ + ngân hàng (gộp cho nhanh) -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FBE9F1] text-[#F2789F]">
+                                <i class="fa-solid fa-building-columns text-[10px]"></i>
+                            </span>
+                            <h2 class="text-sm font-semibold text-gray-800">Liên hệ & Thanh toán</h2>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4 text-xs">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs text-gray-500 mb-2">Địa chỉ tiệm</label>
+                                <input name="dia_chi" value="{{ shop.diaChi }}" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-2">Tên chủ tài khoản</label>
+                                <input name="ten_chu_tk" value="{{ shop.tenChuTaiKhoan }}" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-2">Số tài khoản</label>
+                                <input id="so_tk" name="so_tk" value="{{ shop.soTaiKhoan }}" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-100">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs text-gray-500 mb-2">Ngân hàng</label>
+                                <div class="relative">
+                                    <button type="button" id="bank-btn" class="w-full rounded-xl border border-gray-200 px-4 py-2 text-sm text-left bg-white flex items-center gap-2">
+                                        <img id="bank-logo" src="" class="{% if not shop.bank_bin %}hidden {% endif %}w-6 h-6 object-contain">
+                                        <span id="bank-label" class="{% if not shop.tenNganHang %}text-gray-400{% endif %}">{{ shop.tenNganHang|default:"Chọn ngân hàng..." }}</span>
+                                        <span class="ml-auto text-gray-400">▾</span>
+                                    </button>
+                                    <div id="bank-panel" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-hidden">
+                                        <input id="bank-search" type="text" placeholder="Tìm ngân hàng..." class="w-full px-3 py-2 text-sm border-b border-gray-100 outline-none">
+                                        <div id="bank-list" class="max-h-52 overflow-y-auto"></div>
+                                    </div>
+                                    <input type="hidden" name="ten_ngan_hang" id="ten_ngan_hang" value="{{ shop.tenNganHang }}">
+                                    <input type="hidden" name="bank_bin" id="bank_bin" value="{{ shop.bank_bin }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <a href="{% url 'vendor_profile' %}" class="text-xs px-5 py-2 rounded-xl border border-gray-300 text-gray-500">Hủy bỏ</a>
+                        <button type="submit" class="text-xs px-5 py-2 rounded-xl bg-[#F2789F] text-white font-semibold">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Logo preview
+        const logoInput = document.getElementById('logo-upload');
+        const logoPrev = document.getElementById('logo-preview');
+        const logoPlace = document.getElementById('logo-placeholder');
+        logoInput.addEventListener('change', () => {
+            if (logoInput.files && logoInput.files[0]) {
+                logoPrev.src = URL.createObjectURL(logoInput.files[0]);
+                logoPrev.classList.remove('hidden');
+                logoPlace.classList.add('hidden');
+            }
+        });
+
+        // Multi-section gallery: preview new files in correct grid
+        document.querySelectorAll('.gallery-input').forEach(input => {
+            input.addEventListener('change', () => {
+                const grid = document.getElementById(input.dataset.grid);
+                if (!grid) return;
+                const addLabel = grid.querySelector('label.relative.aspect-square.border-dashed') || grid.querySelector('label:last-child');
+                for (const f of input.files) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'relative aspect-square rounded-xl overflow-hidden bg-pink-50 border-2 border-pink-200';
+                    wrap.innerHTML = `<img src="${URL.createObjectURL(f)}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 text-[9px] bg-white/90 px-2 py-0.5 rounded-full text-[#F2789F] font-semibold">MỚI</span>`;
+                    grid.insertBefore(wrap, addLabel);
+                }
+            });
+        });
+
+        // Toggle delete mark
+        document.querySelectorAll('.delete-chk').forEach(chk => {
+            const label = chk.closest('label');
+            const img = chk.closest('div').querySelector('img');
+            label.addEventListener('click', e => {
+                e.preventDefault();
+                chk.checked = !chk.checked;
+                label.classList.toggle('bg-red-500', chk.checked);
+                label.classList.toggle('text-white', chk.checked);
+                img.classList.toggle('opacity-40', chk.checked);
+            });
+        });
+
+        // Bank picker
+        const bankBtn = document.getElementById('bank-btn');
+        const bankPanel = document.getElementById('bank-panel');
+        const bankSearch = document.getElementById('bank-search');
+        const bankList = document.getElementById('bank-list');
+        const bankLabel = document.getElementById('bank-label');
+        const bankLogo = document.getElementById('bank-logo');
+        const hiddenName = document.getElementById('ten_ngan_hang');
+        const hiddenBin = document.getElementById('bank_bin');
+        let banks = [];
+        function renderBanks(f = '') {
+            const fl = f.toLowerCase();
+            bankList.innerHTML = banks.filter(b =>
+                !fl || b.shortName.toLowerCase().includes(fl) || b.code.toLowerCase().includes(fl) || (b.name||'').toLowerCase().includes(fl)
+            ).map(b => `<button type="button" data-bin="${b.bin}" data-name="${b.shortName}" data-logo="${b.logo}" class="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-pink-50 text-left"><img src="${b.logo}" class="w-8 h-8 object-contain"><div class="flex-1"><div class="font-semibold">${b.shortName}</div><div class="text-[11px] text-gray-400 truncate">${b.name}</div></div></button>`).join('');
+        }
+        bankBtn.addEventListener('click', () => bankPanel.classList.toggle('hidden'));
+        document.addEventListener('click', e => { if (!e.target.closest('#bank-btn') && !e.target.closest('#bank-panel')) bankPanel.classList.add('hidden'); });
+        bankSearch.addEventListener('input', () => renderBanks(bankSearch.value));
+        bankList.addEventListener('click', e => {
+            const b = e.target.closest('button[data-bin]');
+            if (b) {
+                hiddenName.value = b.dataset.name; hiddenBin.value = b.dataset.bin;
+                bankLabel.textContent = b.dataset.name; bankLabel.classList.remove('text-gray-400');
+                bankLogo.src = b.dataset.logo; bankLogo.classList.remove('hidden');
+                bankPanel.classList.add('hidden');
+            }
+        });
+        fetch('https://api.vietqr.io/v2/banks').then(r => r.json()).then(d => { banks = d.data || []; renderBanks(); });
+    </script>
+</body>
+</html>

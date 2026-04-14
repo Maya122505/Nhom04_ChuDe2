@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý người dùng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#F6F8FC] text-slate-600">
+    <div class="flex min-h-screen">
+        {% include 'admin/sidebar.html' %}
+
+        <main class="flex-1">
+            <header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between">
+                <h1 class="text-base font-semibold text-slate-900">Quản lý người dùng</h1>
+                <div class="flex items-center gap-3 text-sm font-semibold text-slate-500">
+                    {% if request.user.is_authenticated %}
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=FBE9F1&color=F2789F&bold=true" class="w-9 h-9 rounded-full border border-[#FBE9F1]">
+                        <span class="max-w-[100px] truncate">{{ request.user.username }}</span>
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=E8EDF4&color=64748B" class="w-9 h-9 rounded-full">
+                        <span>Quản trị viên</span>
+                    {% endif %}
+                    <a href="{% url 'logout_admin' %}" class="text-[#F2789F] hover:opacity-80 ml-1" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </header>
+
+            <section class="px-8 py-6">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <form method="get" class="p-5 border-b border-slate-100 flex flex-wrap items-center gap-4">
+                        <div class="relative w-80">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm"></i>
+                            <input
+                                type="text"
+                                name="q"
+                                value="{{ q }}"
+                                placeholder="Tìm kiếm tên, email..."
+                                class="w-full pl-10 pr-4 py-2.5 bg-[#F7F9FC] rounded-xl border border-transparent focus:border-[#F2789F] focus:ring-2 focus:ring-[#FBE9F1] text-sm outline-none"
+                            >
+                        </div>
+                        <div class="flex gap-3 ml-auto">
+                            <select name="role" class="bg-[#F7F9FC] border border-transparent rounded-xl px-4 py-2.5 text-sm text-slate-500 outline-none hover:bg-[#F1F5FB] transition" onchange="this.form.submit()">
+                                <option value="" {% if not role_filter %}selected{% endif %}>Tất cả vai trò</option>
+                                <option value="Chủ tiệm" {% if role_filter == 'Chủ tiệm' %}selected{% endif %}>Chủ tiệm</option>
+                                <option value="Khách hàng" {% if role_filter == 'Khách hàng' %}selected{% endif %}>Khách hàng</option>
+                            </select>
+                            <select name="status" class="bg-[#F7F9FC] border border-transparent rounded-xl px-4 py-2.5 text-sm text-slate-500 outline-none hover:bg-[#F1F5FB] transition" onchange="this.form.submit()">
+                                <option value="" {% if not status_filter %}selected{% endif %}>Tất cả trạng thái</option>
+                                <option value="Hoạt động" {% if status_filter == 'Hoạt động' %}selected{% endif %}>Hoạt động</option>
+                                <option value="Chờ duyệt" {% if status_filter == 'Chờ duyệt' %}selected{% endif %}>Chờ duyệt</option>
+                                <option value="Bị khóa" {% if status_filter == 'Bị khóa' %}selected{% endif %}>Bị khóa</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <table class="w-full text-left">
+                        <thead class="bg-[#F8FAFD] text-[11px] text-slate-400 uppercase tracking-widest font-bold">
+                            <tr>
+                                <th class="px-8 py-4">Tên người dùng</th>
+                                <th class="px-8 py-4">Email</th>
+                                <th class="px-8 py-4 text-center">Vai trò</th>
+                                <th class="px-8 py-4 text-center">Trạng thái</th>
+                                <th class="px-8 py-4 text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for user in users %}
+                            <tr class="hover:bg-[#FFF7FA] transition">
+                                <td class="px-8 py-4 flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center font-bold text-xs uppercase">
+                                        {{ user.ten|slice:":2" }}
+                                    </div>
+                                    <span class="font-semibold text-slate-700">{{ user.ten }}</span>
+                                </td>
+                                <td class="px-8 py-4 text-sm text-slate-400">{{ user.email }}</td>
+                                <td class="px-8 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-24 px-3 py-1.5 rounded-full text-[11px] font-semibold text-white shadow
+                                        {% if user.role == 'Khách hàng' %}bg-[#0D4DA1]{% else %}bg-[#F2789F]{% endif %}">
+                                        {{ user.role }}
+                                    </span>
+                                </td>
+                                <td id="status-{{ forloop.counter }}" class="px-8 py-4 text-center text-sm font-semibold
+                                    {% if user.status == 'Hoạt động' %}text-emerald-500{% elif user.status == 'Chờ duyệt' %}text-amber-500{% else %}text-red-400{% endif %}">
+                                    {{ user.status }}
+                                </td>
+                                <td class="px-8 py-4 text-center space-x-4">
+                                    {% if user.status == 'Chờ duyệt' %}
+                                        <a href="{% url 'pending_detail' user.id %}" class="text-slate-300 hover:text-[#F2789F] transition">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    {% else %}
+                                        <button type="button"
+                                            class="text-slate-300 hover:text-[#F2789F] transition"
+                                            data-name="{{ user.ten }}"
+                                            data-email="{{ user.email }}"
+                                            data-phone="{{ user.phone }}"
+                                            data-joined="{{ user.joined }}"
+                                            data-orders="{{ user.orders }}"
+                                            data-role="{{ user.role }}"
+                                            data-status="{{ user.status }}"
+                                            data-toggle-url="{% url 'toggle_user_active' user.id %}"
+                                            data-is-active="{{ user.is_active|yesno:'1,0' }}"
+                                            onclick="openUserModal(this)">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </button>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'toggle_user_active' user.id %}" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" title="{% if user.is_active %}Khóa tài khoản{% else %}Mở khóa{% endif %}"
+                                            class="{% if not user.is_active %}text-red-500{% else %}text-slate-400{% endif %} hover:opacity-80 transition">
+                                            <i class="fa-solid {% if user.is_active %}fa-lock{% else %}fa-lock-open{% endif %}"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="px-8 py-10 text-center text-slate-400 text-sm">Không tìm thấy người dùng nào phù hợp.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if paginator.num_pages > 1 %}
+                    <div class="px-8 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                        <span>Trang {{ page_obj.number }}/{{ paginator.num_pages }} &nbsp; · &nbsp; {{ total }} người dùng</span>
+                        <div class="flex items-center gap-2">
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+                            {% else %}
+                                <span class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></span>
+                            {% endif %}
+                            {% for p in paginator.page_range %}
+                                {% if p == page_obj.number %}
+                                    <span class="w-9 h-9 rounded-xl bg-[#F2789F] text-white font-semibold shadow flex items-center justify-center">{{ p }}</span>
+                                {% elif p > page_obj.number|add:'-3' and p < page_obj.number|add:'3' %}
+                                    <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-9 h-9 rounded-xl text-slate-400 font-semibold hover:bg-slate-50 flex items-center justify-center">{{ p }}</a>
+                                {% endif %}
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+                            {% else %}
+                                <span class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="px-8 py-3 border-t border-slate-100 text-xs text-slate-400">{{ total }} người dùng</div>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="userModal" class="fixed inset-0 hidden items-center justify-center bg-black/20 z-50">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-base font-semibold text-slate-800">Chi tiết người dùng</h3>
+                <button class="text-slate-400 hover:text-slate-600" onclick="closeUserModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-8">
+                <div class="flex justify-center mb-6">
+                    <div class="w-20 h-20 rounded-full bg-[#FBE9F1] text-[#F2789F] flex items-center justify-center text-xl font-bold shadow">
+                        <span id="modalAvatar">NH</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 text-sm">
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Họ và tên</p>
+                        <p id="modalName" class="text-slate-800 font-semibold break-words"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Email</p>
+                        <p id="modalEmail" class="text-slate-800 font-semibold break-all"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Số điện thoại</p>
+                        <p id="modalPhone" class="text-slate-800 font-semibold"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Vai trò</p>
+                        <p id="modalRole" class="text-slate-800 font-semibold"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Ngày tham gia</p>
+                        <p id="modalJoined" class="text-slate-800 font-semibold"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Trạng thái</p>
+                        <p id="modalStatus" class="font-semibold"></p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-slate-400 font-semibold uppercase">Tổng đơn hàng</p>
+                        <p id="modalOrders" class="text-[#F2789F] font-semibold"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" class="px-6 py-2.5 rounded-lg bg-slate-100 text-slate-600 text-sm font-semibold" onclick="closeUserModal()">Đóng</button>
+                <form id="modalToggleForm" method="post" action="" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" id="modalToggleBtn" class="px-6 py-2.5 rounded-lg bg-[#F2789F] text-white text-sm font-semibold">Khóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openUserModal(btn) {
+            const get = k => btn.getAttribute('data-' + k) || '';
+            const name = get('name') || '-';
+            document.getElementById('modalName').innerText = name;
+            document.getElementById('modalEmail').innerText = get('email') || '-';
+            const phone = get('phone');
+            document.getElementById('modalPhone').innerText = (phone && phone !== 'N/A') ? phone : '-';
+            document.getElementById('modalJoined').innerText = get('joined') || '-';
+            document.getElementById('modalOrders').innerText = get('orders') || '0 đơn hàng';
+            document.getElementById('modalRole').innerText = get('role') || '-';
+            const status = get('status') || '-';
+            const statusEl = document.getElementById('modalStatus');
+            statusEl.innerText = status;
+            statusEl.className = 'font-semibold ' + (
+                status === 'Hoạt động' ? 'text-emerald-500' :
+                status === 'Chờ duyệt' ? 'text-amber-500' : 'text-red-500'
+            );
+            document.getElementById('modalAvatar').innerText = name.substring(0, 2).toUpperCase();
+
+            const form = document.getElementById('modalToggleForm');
+            form.action = get('toggle-url');
+            const isActive = get('is-active') === '1';
+            const btnEl = document.getElementById('modalToggleBtn');
+            btnEl.innerText = isActive ? 'Khóa tài khoản' : 'Mở khóa';
+            btnEl.className = 'px-6 py-2.5 rounded-lg text-white text-sm font-semibold ' + (isActive ? 'bg-red-500' : 'bg-emerald-500');
+
+            const modal = document.getElementById('userModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        window.addEventListener('click', e => {
+            const modal = document.getElementById('userModal');
+            if (e.target === modal) closeUserModal();
+        });
+    </script>
+</body>
+</html>
