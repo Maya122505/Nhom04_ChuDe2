@@ -53,6 +53,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'dv_dathoa.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'dv_dathoa.middleware.NamespacedSessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,3 +146,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # NamespacedSessionMiddleware là subclass của SessionMiddleware -> tắt cảnh báo admin.E410
 SILENCED_SYSTEM_CHECKS = ['admin.E410']
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
