@@ -16,7 +16,7 @@ Stack: Django 6.0.3, SQLite, Pillow, Tailwind CDN.
 
 ```bash
 git clone <repo-url>
-cd MIS3010_Nhom4_ChuDe2
+cd Nhom4_ChuDe2
 ```
 
 ## 3. Tạo & kích hoạt virtualenv
