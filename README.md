@@ -1,6 +1,6 @@
 # FlowerHub — MIS3010_04 Nhóm 4 Chủ đề 2
 
-Nền tảng đặt hoa trực tuyến gồm 3 vai trò: **Khách hàng**, **Tiệm hoa (Shop)**, **Admin hệ thống**.
+Nền tảng đặt hoa trực tuyến gồm 3 vai trò: **Khách hàng**, **Tiệm hoa**, **Admin nền tảng**.
 
 Stack: Django 6.0.3, SQLite, Pillow, Tailwind CDN.
 
